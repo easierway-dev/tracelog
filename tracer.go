@@ -1,4 +1,4 @@
-package tracinglog
+package tracelog
 
 /*
    一些参考: https://github.com/aliyun-sls/opentelemetry-go-provider-sls
@@ -162,7 +162,7 @@ func (c *Config) initTracer(traceExporter tracesdk.SpanExporter, stop func()) er
 			tracesdk.WithExportTimeout(time.Second),
 		),
 		// init sample
-        // parenbased sampler with traceIdratiobased sampler otherwise
+		// parenbased sampler with traceIdratiobased sampler otherwise
 		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(c.SampleRatio))),
 		// Record information about this application in an Resource.
 		tracesdk.WithResource(c.Resource),
