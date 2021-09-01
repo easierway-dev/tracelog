@@ -1,4 +1,4 @@
-package tracinglog
+package tracelog
 
 import (
 	"github.com/smartystreets/goconvey/convey"
