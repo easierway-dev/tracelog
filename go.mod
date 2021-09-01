@@ -5,5 +5,5 @@ go 1.13
 require (
 	github.com/json-iterator/go v1.1.10
 	github.com/smartystreets/goconvey v1.6.4
-	gitlab.mobvista.com/voyager/zlog v0.0.9
+	gitlab.mobvista.com/mtech/zlog v1.0.0
 )

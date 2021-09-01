@@ -2,7 +2,7 @@ package tracinglog
 
 import (
 	"github.com/sirupsen/logrus"
-	"gitlab.mobvista.com/voyager/zlog"
+	"gitlab.mobvista.com/mtech/zlog"
 	"io"
 )
 
