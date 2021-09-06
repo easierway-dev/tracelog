@@ -5,12 +5,15 @@ package tracelog
 */
 import (
 	"github.com/pkg/errors"
-	"time"
-	//    "fmt"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
+	"time"
+	//    "fmt"
+	"strings"
+
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 
 	"context"
@@ -20,38 +23,16 @@ import (
 
 type Config struct {
 	ServiceName string
-
-	// exporter采用log, 进行统一
-	// 后续有其他exporter的话, 或collector的话, 再做修改, 代价不大
-	TraceLogPath string
-
-	// IsRootSpan 是否有root span的服务
-
-	// 以下两个配置, 进行采样的配置
-	// 使用otel/sdk/trace中定义的sampler, ParentBased和RatioBased
-	// 只接受上游传来的服务, 应使用ParentBasedSampler,取样的决定
-	// 由context传来, 如juno服务
-	// 本身是请求的起始服务, 需要初始化RatioBasedSampler, 传入取样比例
-	// 注意: 像dsp这种, 则需要配置ParentBased和RatioBased两种取样配置
-
-	// HasRemoteParent 是否初始化ParentBasedSampler
-	// 置为true时, 优先从远程上下文中传递取样配置
-	// 为了省事, 暂时不暴露配置, 默认为true
-	HasRemoteParent bool
-
-	// SampleRatio 取样比例, 用于初始TraceIDRatioSampler
-	// HasRemoteParent为true时, 可以设置parentBasedSampler的root为TraceIDRatioSampler
 	SampleRatio float64
 
-	// TODO
-	// 其他配置,如每秒取样数等
-
-	// 初始化时, 传入的一些resouce信息
-	Resource *resource.Resource
+	TraceLogPath        string
+	JaegerAgentEndpoint string
+	JaegerAgentHost     string
+	JaegerAgentPort     string
+	Resource            *resource.Resource
 
 	resourceAttributes map[string]string
 
-	// 主程序退出时, flush trace信息
 	stop []func()
 }
 
@@ -65,16 +46,21 @@ func WithServiceName(name string) Option {
 }
 
 // 设置tracelog的日志路径
-func WithTraceLogPath(path string) Option {
+func WithJaegerAgentEndpoint(url string) Option {
 	return func(c *Config) {
-		c.TraceLogPath = path
+		host := strings.Split(url, ":")[0]
+		port := strings.Split(url, ":")[1]
+
+		c.JaegerAgentEndpoint = url
+		c.JaegerAgentHost = host
+		c.JaegerAgentPort = port
 	}
 }
 
-// 设置是否有RemoteParent
-func WithRemoteParent(b bool) Option {
+// 设置tracelog的日志路径
+func WithTraceLogPath(path string) Option {
 	return func(c *Config) {
-		c.HasRemoteParent = b
+		c.TraceLogPath = path
 	}
 }
 
@@ -92,7 +78,11 @@ func (c *Config) IsValid() error {
 	if c.TraceLogPath == "" {
 		return errors.New("empty trace log path")
 	}
+	if c.SampleRatio == 0 {
+		return errors.New("zero sample ratio")
+	}
 	return nil
+
 }
 
 func getDefaultResource(c *Config) *resource.Resource {
@@ -115,11 +105,11 @@ func mergeResource(c *Config) {
 	}
 	newResource := resource.NewWithAttributes(semconv.SchemaURL, keyValues...)
 	c.Resource, _ = resource.Merge(c.Resource, newResource)
+
 }
 
 func NewConfig(opts ...Option) (*Config, error) {
 	var c Config
-	c.HasRemoteParent = true
 
 	// load config from option function
 	for _, opt := range opts {
@@ -130,16 +120,34 @@ func NewConfig(opts ...Option) (*Config, error) {
 	return &c, c.IsValid()
 }
 
-// 初始化Exporter, 使用stdouttrace将trace信息输出到trace日志中
+//
+// 初始化Exporter
+// 如果jaeger endpoint不为空, 则优先使用jaeger作为exporter
+// 如果没配jaeger endpoint, 使用stdouttrace将trace信息输出到trace日志中
 // 日志使用logrus
 func (c *Config) initOtelExporter() (traceExporter tracesdk.SpanExporter, exporterStop func(), initErr error) {
-	logger, err := initLogger(c.TraceLogPath)
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "init logTracer failed!")
-	}
-	exporter, err := stdouttrace.New(stdouttrace.WithWriter(logger.Writer()))
-	if err != nil {
-		return nil, nil, errors.Wrap(err, "init stdouttrace faild")
+
+	var exporter tracesdk.SpanExporter
+	var err error
+	if c.JaegerAgentEndpoint != "" {
+		exporter, err = jaeger.New(jaeger.WithAgentEndpoint(
+			jaeger.WithAgentHost(c.JaegerAgentHost),
+			jaeger.WithAgentPort(c.JaegerAgentPort),
+		))
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "init jaegertrace exporter faild")
+		}
+
+	} else {
+		logger, err := initLogger(c.TraceLogPath)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "init logTracer failed!")
+		}
+		exporter, err = stdouttrace.New(stdouttrace.WithWriter(logger.Writer()))
+
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "init stdouttrace exporter faild")
+		}
 	}
 	traceExporter = exporter
 	exporterStop = func() {
@@ -162,15 +170,14 @@ func (c *Config) initTracer(traceExporter tracesdk.SpanExporter, stop func()) er
 			tracesdk.WithExportTimeout(time.Second),
 		),
 		// init sample
-		// parenbased sampler with traceIdratiobased sampler otherwise
-		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(c.SampleRatio))),
+		// tracesdk.WithSampler(tracesdk.AlwaysSample()),
+		tracesdk.WithSampler(tracesdk.TraceIDRatioBased(c.SampleRatio)),
 		// Record information about this application in an Resource.
 		tracesdk.WithResource(c.Resource),
 	)
 
 	otel.SetTracerProvider(tp)
 	c.stop = append(c.stop, func() {
-		tp.Shutdown(context.Background())
 		stop()
 	})
 	return nil
@@ -193,12 +200,25 @@ func Start(c *Config) error {
 func Shutdown(c *Config) {
 	for _, stop := range c.stop {
 		stop()
+
 	}
-}
-
-// TODO
-// ChangeSampleRatio 动态更改取样比例, 取样比例只适用于具备trace根节点的情况
-
-func ChangeSampleRatio(ratio float64) {
 
 }
+
+/*
+func trace1() {
+	tp := otel.GetTracerProvider().(*tracesdk.TracerProvider)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	tr := tp.Tracer("component-main")
+
+	ctx, span := tr.Start(ctx, "foo")
+	fmt.Println("trace on:", span.SpanContext().IsSampled())
+	defer span.End()
+
+	bar(ctx)
+	bar(ctx)
+	time.Sleep(3 * time.Second)
+}
+*/
