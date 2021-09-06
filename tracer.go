@@ -23,9 +23,28 @@ import (
 
 type Config struct {
 	ServiceName string
+	// exporter采用log, 进行统一
+	// 后续有其他exporter的话, 或collector的话, 再做修改, 代价不大
+	TraceLogPath string
+
+	// IsRootSpan 是否有root span的服务
+
+	// 以下两个配置, 进行采样的配置
+	// 使用otel/sdk/trace中定义的sampler, ParentBased和RatioBased
+	// 只接受上游传来的服务, 应使用ParentBasedSampler,取样的决定
+	// 由context传来, 如juno服务
+	// 本身是请求的起始服务, 需要初始化RatioBasedSampler, 传入取样比例
+	// 注意: 像dsp这种, 则需要配置ParentBased和RatioBased两种取样配置
+
+	// HasRemoteParent 是否初始化ParentBasedSampler
+	// 置为true时, 优先从远程上下文中传递取样配置
+	// 为了省事, 暂时不暴露配置, 默认为true
+	HasRemoteParent bool
+
+	// SampleRatio 取样比例, 用于初始TraceIDRatioSampler
+	// HasRemoteParent为true时, 可以设置parentBasedSampler的root为TraceIDRatioSampler
 	SampleRatio float64
 
-	TraceLogPath        string
 	JaegerAgentEndpoint string
 	JaegerAgentHost     string
 	JaegerAgentPort     string
