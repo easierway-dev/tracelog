@@ -67,6 +67,9 @@ func WithServiceName(name string) Option {
 // 设置tracelog的日志路径
 func WithJaegerAgentEndpoint(url string) Option {
 	return func(c *Config) {
+		if url == ""{
+			url ="127.0.0.1:6831"
+		}
 		host := strings.Split(url, ":")[0]
 		port := strings.Split(url, ":")[1]
 
@@ -99,9 +102,6 @@ func WithSampleRatio(ratio float64) Option {
 func (c *Config) IsValid() error {
 	if c.ServiceName == "" {
 		return errors.New("empty service name")
-	}
-	if c.TraceLogPath == "" {
-		return errors.New("empty trace log path")
 	}
 	return nil
 
