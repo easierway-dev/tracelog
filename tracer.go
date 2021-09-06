@@ -103,9 +103,6 @@ func (c *Config) IsValid() error {
 	if c.TraceLogPath == "" {
 		return errors.New("empty trace log path")
 	}
-	if c.SampleRatio == 0 {
-		return errors.New("zero sample ratio")
-	}
 	return nil
 
 }
