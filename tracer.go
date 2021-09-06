@@ -82,6 +82,12 @@ func WithTraceLogPath(path string) Option {
 		c.TraceLogPath = path
 	}
 }
+// 设置是否有RemoteParent
+func WithRemoteParent(b bool) Option {
+	return func(c *Config) {
+		c.HasRemoteParent = b
+	}
+}
 
 // 设置tracelog取样的比例
 func WithSampleRatio(ratio float64) Option {
