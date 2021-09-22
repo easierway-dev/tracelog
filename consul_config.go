@@ -1,6 +1,7 @@
 package tracelog
 
 import (
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/bj-wangjia/priority_queue"
 	"github.com/hashicorp/consul/api"
@@ -78,5 +79,13 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 	config, err := NewConfig(WithServiceName(service_name),
 		WithSampleRatio(consulConfig.SampleRatio),
 		WithJaegerAgentEndpoint(consulConfig.JaegerAgentEndpoint))
-	return config, err
+	if err != nil {
+		fmt.Println("init traceconfig failed:", err.Error())
+		return nil, err
+	}
+	if err := Start(config); err != nil {
+		fmt.Println("init tracelog start failed:", err.Error())
+		return nil, err
+	}
+	return config, nil
 }
