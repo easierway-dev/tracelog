@@ -3,10 +3,8 @@ package tracelog
 import (
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"github.com/bj-wangjia/priority_queue"
 	"github.com/hashicorp/consul/api"
 	"github.com/pkg/errors"
-	"sync"
 	"time"
 	"unsafe"
 )
@@ -16,9 +14,6 @@ var (
 	KvNotFound          = errors.New("kv not found")
 	GetConsulKvFailed   = errors.New("get consul kv info failed")
 	JsonUnmarshalFailed = errors.New("json unmarshal failed")
-
-	scheduleUnit = priority_queue.New()
-	onSched      = sync.Once{}
 )
 
 type Ops struct {
