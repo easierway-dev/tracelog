@@ -3,7 +3,7 @@ module gitlab.mobvista.com/mtech/tracelog
 go 1.15
 
 require (
-	github.com/BurntSushi/toml v0.4.1
+	github.com/BurntSushi/toml v0.3.1
 	github.com/bj-wangjia/priority_queue v0.0.1
 	github.com/hashicorp/consul/api v1.10.1
 	github.com/json-iterator/go v1.1.12
