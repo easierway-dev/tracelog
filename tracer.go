@@ -193,7 +193,7 @@ func (c *Config) initTracer(traceExporter tracesdk.SpanExporter, stop func()) er
 		),
 		// init sample
 		// tracesdk.WithSampler(tracesdk.AlwaysSample()),
-		tracesdk.WithSampler(tracesdk.TraceIDRatioBased(c.SampleRatio)),
+		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(c.SampleRatio))),
 		// Record information about this application in an Resource.
 		tracesdk.WithResource(c.Resource),
 	)
