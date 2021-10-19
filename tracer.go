@@ -9,6 +9,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"time"
 	//    "fmt"
@@ -193,12 +194,14 @@ func (c *Config) initTracer(traceExporter tracesdk.SpanExporter, stop func()) er
 		),
 		// init sample
 		// tracesdk.WithSampler(tracesdk.AlwaysSample()),
-		tracesdk.WithSampler(tracesdk.TraceIDRatioBased(c.SampleRatio)),
+		tracesdk.WithSampler(tracesdk.ParentBased(tracesdk.TraceIDRatioBased(c.SampleRatio))),
 		// Record information about this application in an Resource.
 		tracesdk.WithResource(c.Resource),
 	)
 
 	otel.SetTracerProvider(tp)
+	// 设置上下文传递
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	c.stop = append(c.stop, func() {
 		stop()
 	})
