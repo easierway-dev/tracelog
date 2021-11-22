@@ -9,19 +9,19 @@ import (
 
 	"context"
 )
+ const   supportedVersion  = 0
 
 func ToRecordingContext(ctx context.Context, sc trace.SpanContext) {
      if !sc.IsValid() {
          return
      }
      prop := propagation.TraceContext{}
-     flags := trace.FlagsSampled & trace.FlagsSampled
      th := fmt.Sprintf(
           "%.2x-%s-%s-%s",
           supportedVersion,
           sc.TraceID(),
           sc.SpanID(),
-          flags,
+          trace.FlagsSampled,
       )
      req, _ := http.NewRequest("GET", "http://example.com", nil)
      req.Header.Set("traceparent", th)
