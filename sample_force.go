@@ -1,22 +1,13 @@
 package tracelog
 
 import (
-	"github.com/pkg/errors"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/jaeger"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/resource"
-	"time"
-	//    "fmt"
-	"strings"
+	"fmt"
 
-	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
+    "net/http"
 
 	"context"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
-	"os"
 )
 
 func ToRecordingContext(ctx context.Context, sc trace.SpanContext) {
