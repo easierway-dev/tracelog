@@ -44,6 +44,7 @@ func (l *logger) Log(logStr string) {
 
 func (l *logger) LogContext(ctx context.Context, logStr string) {
 
+    LogContext(ctx, lostr, attrs)
 }
 
 
