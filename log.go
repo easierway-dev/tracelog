@@ -1,7 +1,10 @@
 package tracelog 
 
 import (
+    "context"
+    "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/trace"
+    "go.opentelemetry.io/otel/attribute"
 )
 
 type logSpanFlag // 0: not-sampled; 1: use parent-span; 2: new span
