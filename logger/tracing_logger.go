@@ -1,4 +1,4 @@
-package tracelog
+package logger
 
 import (
 	"github.com/sirupsen/logrus"

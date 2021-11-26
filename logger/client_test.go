@@ -1,7 +1,8 @@
-package tracelog_test 
+package logger_test
 import (
     "context"
     "gitlab.mobvista.com/mtech/tracelog"
+    "testing"
 )
 
 func TestTraceLogLogger(t *testing.T) {
@@ -10,6 +11,6 @@ func TestTraceLogLogger(t *testing.T) {
         Name: "testlog",
     }, []string{"label1", "label2"})
 
-    ctx = context.Context()
+    ctx := context.Background()
     testLogger.WithLabelValues("tag1", "tag2").LogContext(ctx, "logstr")
 }

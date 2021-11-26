@@ -1,4 +1,4 @@
-package trace_log
+package logger
 
 import (
     "context"
@@ -25,7 +25,7 @@ type Opts struct {
     Name string
 }
 type LoggerVec struct {
-    opts LoggerOpts
+    opts       LoggerOpts
     labelNames []string
 }
 
@@ -66,7 +66,7 @@ func (v *LoggerVec) WithLabelValues(lvs ...string) Loggers {
     for  key,_:= range v.labelNames{
         LabelValues[v.labelNames[key]] = lvs[key]
     }
-    return &logger{Name:v.opts.Name,Labels: LabelValues}
+    return &logger{Name: v.opts.Name,Labels: LabelValues}
 }
 
 func (l *logger) Log(logStr string) {
