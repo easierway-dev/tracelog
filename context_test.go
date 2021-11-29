@@ -40,22 +40,22 @@ func TestIsSampledFromContext(t *testing.T) {
 		isSuccess    bool
 	}{
 		{
-			name: "in valid context, non sampled -> non sampled",
+			name: "new invalid context, return false",
 			ctx: nil,
 			isSuccess: false,
 		},
 		{
-			name: "in valid context, non sampled -> non sampled",
+			name: "new invalid context, return false",
 			ctx: context.Background(),
 			isSuccess: false,
 		},
 		{
-			name: "in valid context, non sampled -> non sampled",
+			name: "new invalid context, return false",
 			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{Remote: true})),
 			isSuccess: false,
 		},
 		{
-			name: "in valid context, non sampled -> sampled",
+			name: "new valid context, return true",
 			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{
 				TraceID:    mustTraceIDFromHex(traceIDStr),
 				SpanID:     mustSpanIDFromHex(spanIDStr),
