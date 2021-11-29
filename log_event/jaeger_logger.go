@@ -26,7 +26,7 @@ type JaegerLogEventVec struct {
     jaegerLogEvent *JaegerLogEvent
 }
 
-func NewJaegerLogEvent(ctx context.Context, name string) logEventVec {
+func NewJaegerLogEventVec(ctx context.Context, name string) logEventVec {
     span, spanFlag := logSpanFromContext(ctx)
     if span == nil  || spanFlag == logSpanNoSampled {
         return NewNopLogEventVec()
@@ -37,7 +37,8 @@ func NewJaegerLogEvent(ctx context.Context, name string) logEventVec {
         spanFlag: spanFlag,
         eventName: name,
     }
-    jleVec := &JaegerLogEvent{jle}
+    jleVec := &JaegerLogEventVec{jle}
+    return jleVec
 }
 
 func (lev *JaegerLogEventVec)getLogEventWithLabelValues(m map[string]string) (*JaegerLogEvent, error) {
