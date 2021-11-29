@@ -1,4 +1,4 @@
-func tracelog
+package tracelog
 
 import (
     "context"
