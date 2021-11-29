@@ -3,6 +3,7 @@ package log_event
 
 import (
     "gitlab.mobvista.com/mtech/tracelog"
+    "context"
 )
 
 type logEventVec interface{
