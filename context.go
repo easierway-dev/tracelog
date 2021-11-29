@@ -2,6 +2,7 @@ func tracelog
 
 import (
     "context"
+    "go.opentelemetry.io/otel/trace"
 )
 
 func IsSampledFromContext(ctx context.Context) bool {
