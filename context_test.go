@@ -1,5 +1,4 @@
-
-package log_event
+package tracelog_test
 
 import (
 	"context"
@@ -37,26 +36,30 @@ func TestIsSampledFromContext(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		ctx context.Context
+		isSuccess    bool
 	}{
 		{
 			ctx: nil,
+			isSuccess: false,
 		},
 		{
 			ctx: context.Background(),
+			isSuccess: false,
 		},
 		{
 			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{
-			TraceID:    mustTraceIDFromHex(traceIDStr),
-			SpanID:     mustSpanIDFromHex(spanIDStr),
-			TraceFlags: trace.FlagsSampled,
-			Remote:     true,
-		})),
+				TraceID:    mustTraceIDFromHex(traceIDStr),
+				SpanID:     mustSpanIDFromHex(spanIDStr),
+				TraceFlags: trace.FlagsSampled,
+				Remote:     true,
+			})),
+			isSuccess: true,
 		},
 	}
 	for _, tt := range tests {
 		gotCtx := ContextToRecordingContext(tt.ctx)
-		if got, want := IsSampledFromContext(gotCtx), false; got != want {
-			t.Errorf("IsSampledFromContext returned %#v, want %#v", got, want)
+		if IsSampledFromContext(gotCtx) != tt.isSuccess{
+			t.Errorf("span.IsRecording() returned %#v", tt.isSuccess)
 		}
 	}
 }
