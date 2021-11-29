@@ -2,12 +2,13 @@ package log_event
 
 import (
     "context"
+    "fmt"
     "go.opentelemetry.io/otel"
     "go.opentelemetry.io/otel/trace"
     "go.opentelemetry.io/otel/attribute"
 )
 
-type logSpanFlag // 0: not-sampled; 1: use parent-span; 2: new span
+type logSpanFlag int // 0: not-sampled; 1: use parent-span; 2: new span
 const (
     logSpanNoSampled logSpanFlag = 0
     logSpanUseParent logSpanFlag = 1
@@ -43,7 +44,7 @@ func (lev *JaegerLogEventVec)getLogEventWithLabelValues(m map[string]string) (*J
     if lev == nil || lev.jaegerLogEvent == nil {
         return nil, fmt.Errorf("invalid jaeger log event")
     }
-    attrs = make([]attribute.KeyValue, len(m)+1)
+    attrs := make([]attribute.KeyValue, len(m)+1)
     for k,v := range m {
         attrs = append(attrs, attribute.String(k, v))
     }
@@ -67,7 +68,7 @@ func (le *JaegerLogEvent) Log(msg string) {
         return 
     }
 
-    if le.logSpanNewSpan == logSpanNewSpan {
+    if le.spanFlag == logSpanNewSpan {
         defer le.span.End()
     }
     
@@ -76,7 +77,7 @@ func (le *JaegerLogEvent) Log(msg string) {
     le.attrs = append(le.attrs, attribute.String("event.message", msg))
         
     // use jaeger span event as logger writer
-    le.span.AddEvent(le.eventName, trace.WithAttributes(le.attrs))
+    le.span.AddEvent(le.eventName, trace.WithAttributes(le.attrs...))
 }
 
 // 适用jeager来记录日志

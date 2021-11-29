@@ -5,7 +5,7 @@ package log_event
 
 type nopLogEventVec struct{}
 
-type nopLogEvent strut {}
+type nopLogEvent struct {}
 func NewNopLogEventVec() logEventVec {
     return nopLogEventVec{}
 }
