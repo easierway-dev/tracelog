@@ -35,18 +35,27 @@ func mustSpanIDFromHex(s string) (t trace.SpanID) {
 func TestIsSampledFromContext(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
+		name string
 		ctx context.Context
 		isSuccess    bool
 	}{
 		{
+			name: "in valid context, non sampled -> non sampled",
 			ctx: nil,
 			isSuccess: false,
 		},
 		{
+			name: "in valid context, non sampled -> non sampled",
 			ctx: context.Background(),
 			isSuccess: false,
 		},
 		{
+			name: "in valid context, non sampled -> non sampled",
+			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{Remote: true})),
+			isSuccess: false,
+		},
+		{
+			name: "in valid context, non sampled -> sampled",
 			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{
 				TraceID:    mustTraceIDFromHex(traceIDStr),
 				SpanID:     mustSpanIDFromHex(spanIDStr),
@@ -57,9 +66,11 @@ func TestIsSampledFromContext(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		gotCtx := ContextToRecordingContext(tt.ctx)
-		if IsSampledFromContext(gotCtx) != tt.isSuccess{
-			t.Errorf("span.IsRecording() returned %#v", tt.isSuccess)
-		}
+		t.Run(tt.name, func(t *testing.T) {
+			gotCtx := ContextToRecordingContext(tt.ctx)
+			if IsSampledFromContext(gotCtx) != tt.isSuccess {
+				t.Errorf("Extract Tracecontext: %s: IsSampledFromContext() returned %#v",tt.name,tt.isSuccess)
+			}
+		})
 	}
 }
