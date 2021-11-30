@@ -2,10 +2,8 @@ package log_event
 
 import (
 	"context"
-	"fmt"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
-	"net/http"
 	"testing"
 )
 const (
@@ -16,43 +14,78 @@ var (
 	traceID = mustTraceIDFromHex(traceIDStr)
 	spanID  = mustSpanIDFromHex(spanIDStr)
 )
-func TestJaegerLogger(t *testing.T) {
+type traceContextKeyType int
+
+const currentSpanKey traceContextKeyType = iota
+func TestJaegerLoggerNoSample(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
-		name   string
-		sc     trace.SpanContext
-		wantSc trace.SpanContext
+		name string
+		ctx context.Context
+		logEventVec logEventVec
 	}{
 		{
-			name:   "in valid context, non sampled -> non sampled",
-			sc:     trace.SpanContext{},
-			wantSc: trace.NewSpanContext(trace.SpanContextConfig{Remote: true}),
+			name: "new invalid context, return nil",
+			ctx: nil,
+			logEventVec: nopLogEventVec{},
 		},
 		{
-			name: "valid context, non sampled -> sampled",
-			sc: trace.NewSpanContext(trace.SpanContextConfig{
-				TraceID: traceID,
-				SpanID:  spanID,
-			}),
-			wantSc: trace.NewSpanContext(trace.SpanContextConfig{
-				TraceID:    traceID,
-				SpanID:     spanID,
-				TraceFlags: trace.FlagsSampled,
-				Remote:     true,
-			}),
+			name: "new invalid context, return nil",
+			ctx: context.Background(),
+			logEventVec: nopLogEventVec{},
+		},
+		{
+			name: "new valid context, non sampled return nil",
+			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{Remote: true})),
+			logEventVec: nopLogEventVec{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// ctx = trace.ContextWithRemoteSpanContext(ctx, sc)
-			ctx := context.Background()
-			ctx = trace.ContextWithRemoteSpanContext(ctx, tt.sc)
-			gotCtx := ContextToRecordingContext(ctx)
-			m := make(map[string]string)
-			m["Label1"] = "tag1"
-			m["Label2"] = "tag2"
-			eventVec := WithContext(gotCtx, "testJaegerLogger")
-			labelValues := eventVec.WithLabelValues(m)
-			labelValues.Log("testlog")
+			if NewJaegerLogEventVec(tt.ctx, "test") != tt.logEventVec {
+				t.Errorf("Extract Tracecontext: %s: NewJaegerLogEventVec() returned %#v",tt.name,tt.logEventVec)
+			}
+		})
+	}
+}
+
+func TestJaegerLoggerSample(t *testing.T) {
+	t.Parallel()
+	start, _ := otel.Tracer("a").Start(context.Background(), "test")
+	tests := []struct {
+		name string
+		ctx context.Context
+		sample logSpanFlag
+	}{
+		// 这个还有点问题
+		{
+			name: "new valid context, parent sampled return 1",
+			ctx: context.WithValue(
+				context.WithValue(context.Background(),currentSpanKey,
+					trace.NewSpanContext(trace.SpanContextConfig{
+						TraceFlags: trace.FlagsSampled,
+						Remote:     true,
+					})),currentSpanKey,trace.SpanFromContext(start),
+			),
+			sample: logSpanUseParent,
+		},
+		{
+			name: "new valid context,customize sampled return 2",
+			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{
+				TraceID:    mustTraceIDFromHex(traceIDStr),
+				SpanID:     mustSpanIDFromHex(spanIDStr),
+				TraceFlags: trace.FlagsSampled,
+				Remote:     true,
+			})),
+			sample: logSpanNewSpan,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			vec := NewJaegerLogEventVec(tt.ctx, "test")
+			if vec.(*JaegerLogEventVec).jaegerLogEvent.spanFlag != tt.sample {
+				t.Errorf("Extract Tracecontext: %s: NewJaegerLogEventVec() returned %#v",tt.name,tt.sample)
+			}
 		})
 	}
 }
