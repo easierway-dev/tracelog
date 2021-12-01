@@ -1,9 +1,12 @@
 package log_event
 
 import (
-	"context"
 	"go.opentelemetry.io/otel/propagation"
+	"context"
+	"go.opentelemetry.io/otel"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
+	"log"
 	"testing"
 )
 const (
@@ -51,22 +54,24 @@ func TestJaegerLoggerNoSample(t *testing.T) {
 
 func TestJaegerLoggerSample(t *testing.T) {
 	t.Parallel()
-	start, _ := otel.Tracer("a").Start(context.Background(), "test")
+	tp:=sdktrace.NewTracerProvider(
+		sdktrace.WithSampler(sdktrace.AlwaysSample()))
+	otel.SetTracerProvider(tp)
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+	}()
+	tr := otel.Tracer("testjaeger")
+	_, span := tr.Start(context.Background(), "test")
 	tests := []struct {
 		name string
 		ctx context.Context
 		sample logSpanFlag
 	}{
-		// 这个还有点问题
 		{
 			name: "new valid context, parent sampled return 1",
-			ctx: context.WithValue(
-				context.WithValue(context.Background(),currentSpanKey,
-					trace.NewSpanContext(trace.SpanContextConfig{
-						TraceFlags: trace.FlagsSampled,
-						Remote:     true,
-					})),currentSpanKey,trace.SpanFromContext(start),
-			),
+			ctx: trace.ContextWithSpan(context.Background(),span),
 			sample: logSpanUseParent,
 		},
 		{
