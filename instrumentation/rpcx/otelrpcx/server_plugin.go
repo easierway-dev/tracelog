@@ -21,8 +21,25 @@ func (p OpenTelemetryServerPlugin) PostConnAccept(conn net.Conn) (net.Conn, bool
 }
 
 func (p OpenTelemetryServerPlugin) PreHandleRequest(ctx context.Context, r *protocol.Message) error {
-    sc, err := GetOtelSpanContextFromContext(ctx)
-    otel.GetTextMapPropagator().Extract(ctx, )
+    sc := GetOtelSpanContextFromContext(ctx)
+    if sc == nil {
+        return nil
+    }
+
+    tracer := otel.GetTracerProvider().Tracer(instrumentationName)
+    spanName := "rpcx.service."+r.servicePath+"."+r.serviceMethod
+    trace.WithAttributes
+    opts := []trace.SpanStartOption{
+        trace.WithAttributes(attribute.String("remote_addr", clientConn.RemoteAddr().String())),
+        trace.WithSpanKind(trace.SpanKindServer),
+    }
+
+    _,span := tracer.Start(ctx, spanName, opts...)
+    if rpcxContext, ok := ctx.(*share.Context); ok {
+		rpcxContext.SetValue(OpenTelemetrySpanRequestKey, span)
+    }
+	return nil
+
 }
 
 func (p OpenTelemetryServerPlugin)  PostWriteResponse(ctx context.Context, req *protocol.Message, res *protocol.Message, err error) error {
@@ -35,10 +52,3 @@ func (p OpenTelemetryServerPlugin)  PostWriteResponse(ctx context.Context, req *
 	return nil
 }
 
-func GetOtelSpanContextFromContext(ctx context.Context) (*trace.SpanContext, error ){
-    reqMeta, ok := ctx.Value(share.ReqMetaDataKey).(map[string]string)
-    if !ok {
-        return nil, nil
-    }
-    return 
-}

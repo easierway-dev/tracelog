@@ -12,11 +12,7 @@ import (
 type OpenTelemetryClientPlugin struct{}
 
 func (p *OpenTelemetryClientPlugin)PreCall(ctx context.Context, servicePath, serviceMethod string, args interface{}) error{
-    fmt.Println("OpenTelemetryClientPlugin precall")
-                 _, okk := ctx.(*share.Context)
-             fmt.Println("OpenTelemetryClientPlugin plugin context rpcxcontext:", okk)
-
-    tracer := otel.GetTracerProvider().Tracer("otelrpcx")
+    tracer := otel.GetTracerProvider().Tracer(instrumentationName)
     spanName := "rpcx.client."+servicePath+"."+serviceMethod
     opts := []trace.SpanStartOption{
         trace.WithSpanKind(trace.SpanKindServer),
@@ -24,19 +20,14 @@ func (p *OpenTelemetryClientPlugin)PreCall(ctx context.Context, servicePath, ser
 
     _,span := tracer.Start(ctx, spanName, opts...)
     if rpcxContext, ok := ctx.(*share.Context); ok {
-		rpcxContext.SetValue("otel-rpcx", span)
-        fmt.Println("rpcx context:",rpcxContext.Value("otel-rpcx"))
-    } else {
-        fmt.Println("context not rpcxcontext")
+		rpcxContext.SetValue(OpenTelemetrySpanRequestKey, span)
     }
-        
 	return nil
-
 }
 
 func (p *OpenTelemetryClientPlugin)PostCall(ctx context.Context, servicePath, serviceMethod string, args interface{}, reply interface{}, err error) error {
 	if rpcxContext, ok := ctx.(*share.Context); ok {
-		span1 := rpcxContext.Value("otel-rpcx")
+		span1 := rpcxContext.Value(OpenTelemetrySpanRequestKey)
 		if span1 != nil {
 			span1.(trace.Span).End()
 		}
