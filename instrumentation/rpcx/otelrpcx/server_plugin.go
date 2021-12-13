@@ -2,7 +2,14 @@ package otelrpcx
 
 import (
     "context"
+    "net"
     "go.opentelemetry.io/otel/trace"
+    	"github.com/smallnest/rpcx/protocol"
+        "go.opentelemetry.io/otel"
+        "github.com/smallnest/rpcx/share"
+        "github.com/smallnest/rpcx/server"
+        "go.opentelemetry.io/otel/attribute"
+        
 )
 
 
@@ -21,14 +28,14 @@ func (p OpenTelemetryServerPlugin) PostConnAccept(conn net.Conn) (net.Conn, bool
 }
 
 func (p OpenTelemetryServerPlugin) PreHandleRequest(ctx context.Context, r *protocol.Message) error {
-    sc := GetOtelSpanContextFromContext(ctx)
+    sc := GetOtelSpanContextFromRpcxContext(ctx)
     if sc == nil {
         return nil
     }
 
     tracer := otel.GetTracerProvider().Tracer(instrumentationName)
-    spanName := "rpcx.service."+r.servicePath+"."+r.serviceMethod
-    trace.WithAttributes
+    spanName := "rpcx.service."+r.ServicePath+"."+r.ServiceMethod
+    clientConn := ctx.Value(server.RemoteConnContextKey).(net.Conn)
     opts := []trace.SpanStartOption{
         trace.WithAttributes(attribute.String("remote_addr", clientConn.RemoteAddr().String())),
         trace.WithSpanKind(trace.SpanKindServer),
@@ -46,7 +53,7 @@ func (p OpenTelemetryServerPlugin)  PostWriteResponse(ctx context.Context, req *
 	if rpcxContext, ok := ctx.(*share.Context); ok {
 		span1 := rpcxContext.Value(share.OpencensusSpanServerKey)
 		if span1 != nil {
-			span1.(*trace.Span).End()
+			span1.(trace.Span).End()
 		}
 	}
 	return nil

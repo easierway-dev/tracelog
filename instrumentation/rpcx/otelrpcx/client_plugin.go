@@ -1,7 +1,6 @@
 package otelrpcx
 
 import (
-    "fmt"
     "context"
     "github.com/smallnest/rpcx/share"
     "go.opentelemetry.io/otel/trace"
