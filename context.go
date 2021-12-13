@@ -16,4 +16,20 @@ func IsSampledFromContext(ctx context.Context) bool {
      return span.SpanContext().IsSampled()
 }
 
+func TraceParenetFromContext(ctx context.Context) string {
+    sc := trace.SpanContextFromContext(ctx)
 
+	if !sc.IsValid() {
+		return ""
+	}
+
+    flags := sc.TraceFlags() & trace.FlagsSampled
+
+	return fmt.Sprintf(
+		"%.2x-%s-%s-%s",
+		supportedVersion,
+		sc.TraceID(),
+		sc.SpanID(),
+		flags,
+	)
+}
