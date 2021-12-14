@@ -1,6 +1,7 @@
 package tracelog
 
 import (
+    "fmt"
     "context"
     "go.opentelemetry.io/otel/trace"
 )
