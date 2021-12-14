@@ -32,5 +32,5 @@ func GetContextFromRpcxContext(ctx context.Context) context.Context {
             return ctx1.(context.Context)
          }
      }
-     return context.Background()
+     return ctx
 }
