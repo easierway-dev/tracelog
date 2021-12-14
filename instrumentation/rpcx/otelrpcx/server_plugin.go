@@ -51,7 +51,7 @@ func (p OpenTelemetryServerPlugin) PreHandleRequest(ctx context.Context, r *prot
 
 func (p OpenTelemetryServerPlugin)  PostWriteResponse(ctx context.Context, req *protocol.Message, res *protocol.Message, err error) error {
 	if rpcxContext, ok := ctx.(*share.Context); ok {
-		span1 := rpcxContext.Value(share.OpencensusSpanServerKey)
+		span1 := rpcxContext.Value(OpenTelemetrySpanRequestKey)
 		if span1 != nil {
 			span1.(trace.Span).End()
 		}
