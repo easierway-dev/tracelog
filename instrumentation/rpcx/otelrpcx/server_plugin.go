@@ -27,9 +27,9 @@ func (p OpenTelemetryServerPlugin) PostConnAccept(conn net.Conn) (net.Conn, bool
 	return conn, true
 }
 
-func (p OpenTelemetryServerPlugin) PreHandleRequest(ctx context.Context, r *protocol.Message) error {
-    sc := GetOtelSpanContextFromRpcxContext(ctx)
-    if sc == nil {
+func (p OpenTelemetryServerPlugin) PreHandleRequest(rpcxCtx context.Context, r *protocol.Message) error {
+    ctx := GetContextFromRemoteRpcxContext(rpcxCtx)
+    if ctx == nil {
         return nil
     }
 
@@ -41,9 +41,10 @@ func (p OpenTelemetryServerPlugin) PreHandleRequest(ctx context.Context, r *prot
         trace.WithSpanKind(trace.SpanKindServer),
     }
 
-    _,span := tracer.Start(ctx, spanName, opts...)
-    if rpcxContext, ok := ctx.(*share.Context); ok {
+    ctx2, span := tracer.Start(ctx, spanName, opts...)
+    if rpcxContext, ok := rpcxCtx.(*share.Context); ok {
 		rpcxContext.SetValue(OpenTelemetrySpanRequestKey, span)
+        rpcxContext.SetValue(OpenTelemetrySpanParenetContext, ctx2)
     }
 	return nil
 
