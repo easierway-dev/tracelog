@@ -1,15 +1,15 @@
 package otelrpcx
 
 import (
-    "context"
-    rpcxshare "github.com/smallnest/rpcx/share"
-    "gitlab.mobvista.com/mtech/tracelog"
-    "go.opentelemetry.io/otel"
-    "go.opentelemetry.io/otel/trace"
+	"context"
+	rpcxshare "github.com/smallnest/rpcx/share"
+	"gitlab.mobvista.com/mtech/tracelog"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func CallWithTrace(ctx context.Context, xclient XClient, serviceMethod string, args interface{}, reply interface{}) error {
-    // drs inject trace to context, rpcx plugin not good for write plugin, so use manual code
+	// drs inject trace to context, rpcx plugin not good for write plugin, so use manual code
 	tracer := otel.GetTracerProvider().Tracer(instrumentationName)
 	opts := []trace.SpanStartOption{
 		trace.WithSpanKind(trace.SpanKindClient),
