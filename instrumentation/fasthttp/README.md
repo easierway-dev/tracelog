@@ -1,0 +1,1 @@
+参考dapr框架对otel的集成，实现fasthttp的instrumentation
