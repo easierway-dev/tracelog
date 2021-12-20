@@ -79,7 +79,7 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 	// 获取配置文件并初始化consulConfig
 	getTomlConfig(tomlFormat, &consulConfig)
 	// 如果rootServer不为空, service_name不在RootServer中时, sampleRatio设置为0
-    sampleRatio := consulConfig.SampleRatio
+	sampleRatio := consulConfig.SampleRatio
 	if len(consulConfig.RootService) > 0 {
 		isRootService := false
 		for _, svc := range consulConfig.RootService {
