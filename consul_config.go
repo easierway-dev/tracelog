@@ -29,6 +29,7 @@ type ConsulConfig struct {
 	JaegerAgentEndpoint string
 	JaegerAgentHost     string
 	JaegerAgentPort     string
+    RootService          []string
 }
 
 func getTomlConfig(ops *Ops, value interface{}) error {
@@ -77,9 +78,16 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 	tomlFormat := &Ops{Type: "toml", Address: consul_addr, Path: consul_key}
 	// 获取配置文件并初始化consulConfig
 	getTomlConfig(tomlFormat, &consulConfig)
+    // 如果rootServer不为空, service_name不在RootServer中时, sampleRatio设置为0
+    sampleRatio = 0.0
+    for _, svc:= range consulConfig.RootService) {
+        if service_name == svc {
+            sampleRatio = consulConfig.SampleRatio
+        }
+    }
 	// 根据consulConfig初始化config
 	config, err := NewConfig(WithServiceName(service_name),
-		WithSampleRatio(consulConfig.SampleRatio),
+		WithSampleRatio(sampleRatio),
 		WithJaegerAgentEndpoint(consulConfig.JaegerAgentEndpoint))
 	if err != nil {
 		fmt.Println("init traceconfig failed:", err.Error())
