@@ -6,16 +6,17 @@ import (
 	"gitlab.mobvista.com/mtech/tracelog"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
+    "github.com/smallnest/rpcx/client"
 )
 
-func CallWithTrace(ctx context.Context, xclient XClient, serviceMethod string, args interface{}, reply interface{}) error {
+func CallWithTrace(ctx context.Context, xclient client.XClient, serviceMethod string, args interface{}, reply interface{}) error {
 	// drs inject trace to context, rpcx plugin not good for write plugin, so use manual code
 	tracer := otel.GetTracerProvider().Tracer(instrumentationName)
 	opts := []trace.SpanStartOption{
 		trace.WithSpanKind(trace.SpanKindClient),
 	}
 
-	ctxDrs, span := tracer.Start(ctx1, serviceMethod, opts...)
+	ctxDrs, span := tracer.Start(ctx, serviceMethod, opts...)
 
 	defer span.End()
 
