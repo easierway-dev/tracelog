@@ -20,13 +20,14 @@ func GetIndexNameFunc(key string) elogrus.IndexNameFunc {
 }
 func AddES(Url string) *logrus.Logger{
 	logger := logrus.New()
-	client, err := elastic.NewClient(elastic.SetSniff(false),elastic.SetURL(Url))
-	if err != nil {
-		fmt.Println("invalid client log event:",err.Error())
-	}
 	u, err := url.Parse(Url)
 	if err != nil{
 		fmt.Println("invalid url:",err.Error())
+	}
+	// 设置了ES的健康检查味false
+	client, err := elastic.NewClient(elastic.SetHealthcheck(false),elastic.SetSniff(false),elastic.SetURL(Url))
+	if err != nil {
+		fmt.Println("invalid client log event:",err.Error())
 	}
 	host := strings.Split(u.Host, ":")
 	hook, err := elogrus.NewAsyncElasticHookWithFunc(client,host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
