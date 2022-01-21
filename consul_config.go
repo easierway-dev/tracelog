@@ -14,7 +14,6 @@ import (
 var (
 	KvNotFound        = errors.New("kv not found")
 	GetConsulKvFailed = errors.New("get consul kv info failed")
-	Logger  *log.Logger
 )
 
 type Ops struct {
@@ -109,11 +108,26 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 		fmt.Println("init traceconfig failed:", err.Error())
 		return nil, err
 	}
-	Logger = log_event.InitLogger(consulConfig.LoggingExporter)
+	log_event.Logger = InitLogger(consulConfig.LoggingExporter)
 	// 初始化OpenTelemetry SDK
 	if err := Start(config); err != nil {
 		fmt.Println("init tracelog start failed:", err.Error())
 		return nil, err
 	}
 	return config, nil
+}
+func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
+	switch loggingExporter.ExporterType {
+	case log_event.ES:
+		logger := log_event.AddES(loggingExporter.ElasticSearchUrl)
+		return logger
+	case log_event.Kafka:
+		kafka := log_event.AddKafka(loggingExporter.KafkaUrl)
+		return kafka
+	case log_event.Stdout:
+		stdout := log_event.AddStdout()
+		return stdout
+	default:
+		return log.New()
+	}
 }

@@ -7,7 +7,7 @@ import (
 	"gitlab.mobvista.com/mtech/tracelog"
 	"go.opentelemetry.io/otel/trace"
 )
-
+var Logger  *log.Logger
 type LogrusLogEvent struct {
 	span       trace.Span
 	traceID    trace.TraceID
@@ -19,30 +19,10 @@ type LogrusLogEvent struct {
 	eventName string
 	logger 	   *log.Logger
 }
-const (
-	ES string = "ES"
-	Kafka string = "Kafka"
-	Stdout   string = "Stdout"
-)
 type LogrusLogEventVec struct {
 	logrusLogEvent *LogrusLogEvent
 }
 
-func InitLogger(loggingExporter *tracelog.LoggingExporter) *log.Logger{
-	switch loggingExporter.ExporterType {
-	case ES:
-		logger := AddES(loggingExporter.ElasticSearchUrl)
-		return logger
-	case Kafka:
-		kafka := AddKafka(loggingExporter.KafkaUrl)
-		return kafka
-	case Stdout:
-		stdout := AddStdout()
-		return stdout
-	default:
-		return log.New()
-	}
-}
 func NewLogrusLogEventVec(ctx context.Context,name string) logEventVec {
 	span, spanFlag := logSpanFromContext(ctx)
 	if span == nil || spanFlag == logSpanNoSampled {
@@ -54,7 +34,7 @@ func NewLogrusLogEventVec(ctx context.Context,name string) logEventVec {
 		spanFlag: spanFlag,
 		traceID:  span.SpanContext().TraceID(),
 		spanID:   span.SpanContext().SpanID(),
-		logger: tracelog.Logger,
+		logger: Logger,
 		eventName: name,
 		kafkaTopic: []string{"trace_log"},
 	}
