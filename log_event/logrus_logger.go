@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"gitlab.mobvista.com/mtech/tracelog"
 	"go.opentelemetry.io/otel/trace"
 )
 var Logger  *log.Logger
