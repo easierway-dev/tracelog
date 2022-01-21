@@ -25,11 +25,17 @@ type Ops struct {
 type ConsulConfig struct {
 	// SampleRatio 取样比例, 用于初始TraceIDRatioSampler
 	// HasRemoteParent为true时, 可以设置parentBasedSampler的root为TraceIDRatioSampler
-	SampleRatio         float64
-	JaegerAgentEndpoint string
+	SampleRatio         float64		`json:"SampleRatio" toml:"SampleRatio"`
+	JaegerAgentEndpoint string 		`json:"JaegerAgentEndpoint" toml:"JaegerAgentEndpoint"`
 	JaegerAgentHost     string
 	JaegerAgentPort     string
-	RootService         []string
+	RootService         []string	`json:"RootService" toml:"RootService"`
+	LoggingExporter *LoggingExporter `json:"LoggingExporter" toml:"LoggingExporter"`
+}
+type LoggingExporter struct {
+	ExporterType string 	`json:"ExporterType" toml:"ExporterType"`
+	ElasticSearchUrl string `json:"ElasticSearchUrl" toml:"ElasticSearchUrl"`
+	KafkaUrl	string		`json:"KafkaUrl" toml:"KafkaUrl"`
 }
 
 func getTomlConfig(ops *Ops, value interface{}) error {
