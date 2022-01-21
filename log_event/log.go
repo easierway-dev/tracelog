@@ -1,9 +1,8 @@
 package log_event
 
-
 import (
-    "gitlab.mobvista.com/mtech/tracelog"
     "context"
+    "gitlab.mobvista.com/mtech/tracelog"
 )
 
 type logEventVec interface{
@@ -18,7 +17,7 @@ func WithContext(ctx context.Context, name string) logEventVec {
     // if context span sampled
     // return jaeger_log (hard code)
     if tracelog.IsSampledFromContext(ctx) {
-    return NewJaegerLogEventVec(ctx, name)
+    return NewLogrusLogEventVec(ctx, name)
     }
 
     // context span not sampled

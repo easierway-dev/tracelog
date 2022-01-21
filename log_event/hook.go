@@ -1,41 +1,52 @@
 package log_event
 
 import (
+	"fmt"
 	lkh "github.com/gfremex/logrus-kafka-hook"
 	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/sohlich/elogrus.v7"
+	"net/url"
 	"os"
+	"strings"
+	"time"
 )
 
-
-func AddES(url string) *logrus.Logger{
-	logger := logrus.New()
-	client, err := elastic.NewClient(elastic.SetURL(url))
-	if err != nil {
-		log.Panic(err)
+func GetIndexNameFunc(key string) elogrus.IndexNameFunc {
+	return func() string {
+		return key + "-" + time.Now().Format("20060102")
 	}
-	// TODO url 还待解析
-	hook, err := elogrus.NewAsyncElasticHook(client, url, logrus.DebugLevel, "mylog")
+}
+func AddES(Url string) *logrus.Logger{
+	logger := logrus.New()
+	client, err := elastic.NewClient(elastic.SetSniff(false),elastic.SetURL(Url))
 	if err != nil {
-		log.Panic(err)
+		fmt.Println("invalid client log event:",err.Error())
+	}
+	u, err := url.Parse(Url)
+	if err != nil{
+		fmt.Println("invalid url:",err.Error())
+	}
+	host := strings.Split(u.Host, ":")
+	hook, err := elogrus.NewAsyncElasticHookWithFunc(client,host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
+	if err != nil {
+		fmt.Println("invalid hook log event:",err.Error())
 	}
 	logger.Hooks.Add(hook)
-
 	return logger
 }
-func AddKafka(url string) *logrus.Logger{
+func AddKafka(Url string) *logrus.Logger{
 	// Create a new KafkaHook
 	hook, err := lkh.NewKafkaHook(
 		"kh",
 		[]logrus.Level{logrus.InfoLevel, logrus.WarnLevel, logrus.ErrorLevel},
 		&logrus.JSONFormatter{},
-		[]string{url},
+		[]string{Url},
 	)
 
 	if err != nil {
-		panic(err)
+		fmt.Println("invalid hook log event:",err.Error())
 	}
 
 	// Create a new logrus.Logger

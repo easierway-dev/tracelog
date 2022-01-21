@@ -50,33 +50,13 @@ type Config struct {
 	JaegerAgentHost     string
 	JaegerAgentPort     string
 	Resource            *resource.Resource
-	ExporterType 		string
-	ElasticSearchUrl 	string
-	KafkaUrl			string
 	resourceAttributes map[string]string
 
 	stop []func()
 }
 
 type Option func(*Config)
-// 设置ExporterType
-func WithExporterType(exporterType string) Option {
-	return func(c *Config) {
-		c.ExporterType = exporterType
-	}
-}
-// 设置ElasticSearchUrl
-func WithElasticSearchUrl(elasticSearchUrl string) Option {
-	return func(c *Config) {
-		c.ElasticSearchUrl = elasticSearchUrl
-	}
-}
-// 设置KafkaUrl
-func WithKafkaUrl(kafkaUrl string) Option {
-	return func(c *Config) {
-		c.KafkaUrl = kafkaUrl
-	}
-}
+
 // 设置servicename, 'service.name' resource attribute
 func WithServiceName(name string) Option {
 	return func(c *Config) {
