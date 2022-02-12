@@ -16,7 +16,7 @@ func TestNopLogger(t *testing.T) {
 	if got != want {
 		t.Errorf("LogEventVec.NewLogEventVec returned %#v, want %#v", got, want)
 	}
-	got1, want1:= jaegerLogEventVec.WithLabelValues(m), nopLogEventVec.WithLabelValues(m)
+	got1, want1 := jaegerLogEventVec.WithLabelValues(m), nopLogEventVec.WithLabelValues(m)
 	if got1 != want1 {
 		t.Errorf("LogEventVec.WithLabelValues returned %#v, want %#v", got1, want1)
 	}

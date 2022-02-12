@@ -5,9 +5,9 @@ import (
 	lkh "github.com/gfremex/logrus-kafka-hook"
 	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
-    "io/ioutil"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/sohlich/elogrus.v7"
+	"io/ioutil"
 	"net/url"
 	"os"
 	"strings"
@@ -19,30 +19,30 @@ func GetIndexNameFunc(key string) elogrus.IndexNameFunc {
 		return key + "-" + time.Now().Format("20060102")
 	}
 }
-func AddES(Url string) *logrus.Logger{
+func AddES(Url string) *logrus.Logger {
 	u, err := url.Parse(Url)
-	if err != nil{
-		fmt.Println("invalid url:",err.Error())
-        return nil
+	if err != nil {
+		fmt.Println("invalid url:", err.Error())
+		return nil
 	}
 	// 设置了ES的健康检查味false
-	client, err := elastic.NewClient(elastic.SetHealthcheck(false),elastic.SetSniff(false),elastic.SetURL(Url))
+	client, err := elastic.NewClient(elastic.SetHealthcheck(false), elastic.SetSniff(false), elastic.SetURL(Url))
 	if err != nil {
-		fmt.Println("invalid client log event:",err.Error())
-        return nil 
+		fmt.Println("invalid client log event:", err.Error())
+		return nil
 	}
 	host := strings.Split(u.Host, ":")
-	hook, err := elogrus.NewAsyncElasticHookWithFunc(client,host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
+	hook, err := elogrus.NewAsyncElasticHookWithFunc(client, host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
 	if err != nil {
-		fmt.Println("invalid hook log event:",err.Error())
-        return nil
+		fmt.Println("invalid hook log event:", err.Error())
+		return nil
 	}
 	logger := logrus.New()
-    logger.SetOutput(ioutil.Discard)
+	logger.SetOutput(ioutil.Discard)
 	logger.Hooks.Add(hook)
 	return logger
 }
-func AddKafka(Url string) *logrus.Logger{
+func AddKafka(Url string) *logrus.Logger {
 	// Create a new KafkaHook
 	hook, err := lkh.NewKafkaHook(
 		"kh",
@@ -52,19 +52,19 @@ func AddKafka(Url string) *logrus.Logger{
 	)
 
 	if err != nil {
-		fmt.Println("invalid hook log event:",err.Error())
+		fmt.Println("invalid hook log event:", err.Error())
 	}
 
 	// Create a new logrus.Logger
 	logger := logrus.New()
-    log.SetOutput(ioutil.Discard)
+	log.SetOutput(ioutil.Discard)
 
 	// Add hook to logger
 	logger.Hooks.Add(hook)
 	//l := logger.WithField("topics", []string{"first_topic"})
 	return logger
 }
-func AddStdout() *logrus.Logger{
+func AddStdout() *logrus.Logger {
 	logger := logrus.New()
 	// 设置日志格式为json格式
 	logger.SetFormatter(&log.JSONFormatter{})

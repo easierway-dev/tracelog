@@ -16,30 +16,30 @@ type LogrusLogEvent struct {
 	spanFlag   logSpanFlag
 	attributes map[string]string
 	resource   map[string]string
-	kafkaTopic 	   []string
-	eventName string
+	kafkaTopic []string
+	eventName  string
 }
 
 type LogrusLogEventVec struct {
 	logrusLogEvent *LogrusLogEvent
 }
 
-func NewLogrusLogEventVec(ctx context.Context,name string) logEventVec {
-    // global logger init failed
-    if Logger == nil {
-        return NewNopLogEventVec()
-    }
+func NewLogrusLogEventVec(ctx context.Context, name string) logEventVec {
+	// global logger init failed
+	if Logger == nil {
+		return NewNopLogEventVec()
+	}
 	span, spanFlag := logSpanFromContext(ctx)
 	if span == nil || spanFlag == logSpanNoSampled {
 		return NewNopLogEventVec()
 	}
 	// setup span
 	lle := &LogrusLogEvent{
-		span:     span,
-		spanFlag: spanFlag,
-		traceID:  span.SpanContext().TraceID(),
-		spanID:   span.SpanContext().SpanID(),
-		eventName: name,
+		span:       span,
+		spanFlag:   spanFlag,
+		traceID:    span.SpanContext().TraceID(),
+		spanID:     span.SpanContext().SpanID(),
+		eventName:  name,
 		kafkaTopic: []string{"trace_log"},
 	}
 	lleVec := &LogrusLogEventVec{lle}
@@ -72,12 +72,12 @@ func (le *LogrusLogEvent) Log(msg string) {
 		defer le.span.End()
 	}
 	Logger.WithFields(log.Fields{
-		"traceId": le.traceID.String(),
-		"spanId": le.spanID.String(),
-		"traceFlags":int(le.spanFlag),
+		"traceId":    le.traceID.String(),
+		"spanId":     le.spanID.String(),
+		"traceFlags": int(le.spanFlag),
 		"attributes": le.attributes,
-		"resource": le.resource,
-        "event": le.eventName,
-//		"kafkaTopic":le.kafkaTopic,
+		"resource":   le.resource,
+		"event":      le.eventName,
+		//		"kafkaTopic":le.kafkaTopic,
 	}).Info(msg)
 }

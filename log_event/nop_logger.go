@@ -5,10 +5,11 @@ package log_event
 
 type nopLogEventVec struct{}
 
-type nopLogEvent struct {}
+type nopLogEvent struct{}
+
 func NewNopLogEventVec() logEventVec {
-    return nopLogEventVec{}
+	return nopLogEventVec{}
 }
 
-func (nopLogEventVec) WithLabelValues(map[string]string) logEvent {return nopLogEvent{}}
-func (nopLogEvent) Log(string) {return}
+func (nopLogEventVec) WithLabelValues(map[string]string) logEvent { return nopLogEvent{} }
+func (nopLogEvent) Log(string)                                    { return }

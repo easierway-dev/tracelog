@@ -1,28 +1,26 @@
 package log_event
 
 import (
-    "context"
-    "gitlab.mobvista.com/mtech/tracelog/ctxutil"
+	"context"
+	"gitlab.mobvista.com/mtech/tracelog/ctxutil"
 )
 
-type logEventVec interface{
-    WithLabelValues(map[string]string) logEvent
+type logEventVec interface {
+	WithLabelValues(map[string]string) logEvent
 }
 
-type logEvent interface{
-    Log(string)
+type logEvent interface {
+	Log(string)
 }
 
 func WithContext(ctx context.Context, name string) logEventVec {
-    // if context span sampled
-    // return jaeger_log (hard code)
-    if ctxutil.IsSampledFromContext(ctx) {
-        return NewLogrusLogEventVec(ctx, name)
-    }
+	// if context span sampled
+	// return jaeger_log (hard code)
+	if ctxutil.IsSampledFromContext(ctx) {
+		return NewLogrusLogEventVec(ctx, name)
+	}
 
-    // context span not sampled
-    // return nopLogEvent
-    return NewNopLogEventVec()
+	// context span not sampled
+	// return nopLogEvent
+	return NewNopLogEventVec()
 }
-
-
