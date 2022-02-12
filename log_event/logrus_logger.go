@@ -72,6 +72,7 @@ func (le *LogrusLogEvent) Log(msg string) {
 		"traceFlags":int(le.spanFlag),
 		"attributes": le.attributes,
 		"resource": le.resource,
-		"kafkaTopic":le.kafkaTopic,
+        "event": le.eventName,
+//		"kafkaTopic":le.kafkaTopic,
 	}).Info(msg)
 }
