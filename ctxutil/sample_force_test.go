@@ -1,10 +1,10 @@
-package tracelog_test
+package ctxutil_test
 
 import (
 	"context"
-	"gitlab.mobvista.com/mtech/tracelog"
+	"github.com/google/go-cmp/cmp"
+	"gitlab.mobvista.com/mtech/tracelog/ctxutil"
 	"go.opentelemetry.io/otel/trace"
-    "github.com/google/go-cmp/cmp"
 
 	"testing"
 )
@@ -46,7 +46,7 @@ func TestNonSampledContextToSampledContext(t *testing.T) {
 		{
 			name:   "in valid context, non sampled -> non sampled",
 			sc:     trace.SpanContext{},
-            wantSc: trace.NewSpanContext(trace.SpanContextConfig{Remote: true}),
+			wantSc: trace.NewSpanContext(trace.SpanContextConfig{Remote: true}),
 		},
 		{
 			name: "valid context, non sampled -> sampled",
@@ -58,8 +58,7 @@ func TestNonSampledContextToSampledContext(t *testing.T) {
 				TraceID:    traceID,
 				SpanID:     spanID,
 				TraceFlags: trace.FlagsSampled,
-                Remote:     true,
-
+				Remote:     true,
 			}),
 		},
 	}
@@ -68,7 +67,7 @@ func TestNonSampledContextToSampledContext(t *testing.T) {
 			// ctx = trace.ContextWithRemoteSpanContext(ctx, sc)
 			ctx := context.Background()
 			ctx = trace.ContextWithRemoteSpanContext(ctx, tt.sc)
-			gotCtx := tracelog.ContextToRecordingContext(ctx)
+			gotCtx := ctxutil.ContextToRecordingContext(ctx)
 			gotSc := trace.SpanContextFromContext(gotCtx)
 			if diff := cmp.Diff(gotSc, tt.wantSc, cmp.Comparer(func(sc, other trace.SpanContext) bool { return sc.Equal(other) })); diff != "" {
 				t.Errorf("Extract Tracecontext: %s: -got +want %s", tt.name, diff)

@@ -50,7 +50,6 @@ type Config struct {
 	JaegerAgentHost     string
 	JaegerAgentPort     string
 	Resource            *resource.Resource
-
 	resourceAttributes map[string]string
 
 	stop []func()

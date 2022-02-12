@@ -1,10 +1,11 @@
-package tracelog_test
+package ctxutil_test
 
 import (
 	"context"
 	"go.opentelemetry.io/otel/trace"
 	"testing"
 )
+
 const (
 	traceIDStr = "4bf92f3577b34da6a3ce929d0e0e4736"
 	spanIDStr  = "00f067aa0ba902b7"
@@ -35,28 +36,28 @@ func mustSpanIDFromHex(s string) (t trace.SpanID) {
 func TestIsSampledFromContext(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name string
-		ctx context.Context
-		isSuccess    bool
+		name      string
+		ctx       context.Context
+		isSuccess bool
 	}{
 		{
-			name: "new invalid context, return false",
-			ctx: nil,
+			name:      "new invalid context, return false",
+			ctx:       nil,
 			isSuccess: false,
 		},
 		{
-			name: "new invalid context, return false",
-			ctx: context.Background(),
+			name:      "new invalid context, return false",
+			ctx:       context.Background(),
 			isSuccess: false,
 		},
 		{
-			name: "new valid context, non sampled return false",
-			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{Remote: true})),
+			name:      "new valid context, non sampled return false",
+			ctx:       trace.ContextWithRemoteSpanContext(context.Background(), trace.NewSpanContext(trace.SpanContextConfig{Remote: true})),
 			isSuccess: false,
 		},
 		{
 			name: "new valid context, sampled return true",
-			ctx: trace.ContextWithRemoteSpanContext(context.Background(),trace.NewSpanContext(trace.SpanContextConfig{
+			ctx: trace.ContextWithRemoteSpanContext(context.Background(), trace.NewSpanContext(trace.SpanContextConfig{
 				TraceID:    mustTraceIDFromHex(traceIDStr),
 				SpanID:     mustSpanIDFromHex(spanIDStr),
 				TraceFlags: trace.FlagsSampled,
@@ -69,7 +70,7 @@ func TestIsSampledFromContext(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			gotCtx := ContextToRecordingContext(tt.ctx)
 			if IsSampledFromContext(gotCtx) != tt.isSuccess {
-				t.Errorf("Extract Tracecontext: %s: IsSampledFromContext() returned %#v",tt.name,tt.isSuccess)
+				t.Errorf("Extract Tracecontext: %s: IsSampledFromContext() returned %#v", tt.name, tt.isSuccess)
 			}
 		})
 	}

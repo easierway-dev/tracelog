@@ -5,6 +5,8 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/hashicorp/consul/api"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"gitlab.mobvista.com/mtech/tracelog/log_event"
 	"time"
 	"unsafe"
 )
@@ -25,11 +27,17 @@ type Ops struct {
 type ConsulConfig struct {
 	// SampleRatio 取样比例, 用于初始TraceIDRatioSampler
 	// HasRemoteParent为true时, 可以设置parentBasedSampler的root为TraceIDRatioSampler
-	SampleRatio         float64
-	JaegerAgentEndpoint string
+	SampleRatio         float64		`json:"SampleRatio" toml:"SampleRatio"`
+	JaegerAgentEndpoint string 		`json:"JaegerAgentEndpoint" toml:"JaegerAgentEndpoint"`
 	JaegerAgentHost     string
 	JaegerAgentPort     string
-	RootService         []string
+	RootService         []string	`json:"RootService" toml:"RootService"`
+	LoggingExporter *LoggingExporter `json:"LoggingExporter" toml:"LoggingExporter"`
+}
+type LoggingExporter struct {
+	ExporterType string 	`json:"ExporterType" toml:"ExporterType"`
+	ElasticSearchUrl string `json:"ElasticSearchUrl" toml:"ElasticSearchUrl"`
+	KafkaUrl	string		`json:"KafkaUrl" toml:"KafkaUrl"`
 }
 
 func getTomlConfig(ops *Ops, value interface{}) error {
@@ -100,10 +108,31 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 		fmt.Println("init traceconfig failed:", err.Error())
 		return nil, err
 	}
+	log_event.Logger = InitLogger(consulConfig.LoggingExporter)
 	// 初始化OpenTelemetry SDK
 	if err := Start(config); err != nil {
 		fmt.Println("init tracelog start failed:", err.Error())
 		return nil, err
 	}
 	return config, nil
+}
+func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
+    // 不配置LoggingExporter时，不会panic
+    if loggingExporter == nil {
+        return nil
+    }
+	switch loggingExporter.ExporterType {
+	case log_event.ES:
+		logger := log_event.AddES(loggingExporter.ElasticSearchUrl)
+		return logger
+	case log_event.Kafka:
+		kafka := log_event.AddKafka(loggingExporter.KafkaUrl)
+		return kafka
+	case log_event.Stdout:
+		stdout := log_event.AddStdout()
+		return stdout
+    // 不配置log exporter时, 不打印日志
+	default:
+		return nil
+	}
 }
