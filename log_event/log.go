@@ -17,7 +17,7 @@ func WithContext(ctx context.Context, name string) logEventVec {
     // if context span sampled
     // return jaeger_log (hard code)
     if ctxutil.IsSampledFromContext(ctx) {
-    return NewLogrusLogEventVec(ctx, name)
+        return NewLogrusLogEventVec(ctx, name)
     }
 
     // context span not sampled

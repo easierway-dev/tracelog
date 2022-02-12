@@ -23,16 +23,19 @@ func AddES(Url string) *logrus.Logger{
 	u, err := url.Parse(Url)
 	if err != nil{
 		fmt.Println("invalid url:",err.Error())
+        return nil
 	}
 	// 设置了ES的健康检查味false
 	client, err := elastic.NewClient(elastic.SetHealthcheck(false),elastic.SetSniff(false),elastic.SetURL(Url))
 	if err != nil {
 		fmt.Println("invalid client log event:",err.Error())
+        return nil 
 	}
 	host := strings.Split(u.Host, ":")
 	hook, err := elogrus.NewAsyncElasticHookWithFunc(client,host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
 	if err != nil {
 		fmt.Println("invalid hook log event:",err.Error())
+        return nil
 	}
 	logger.Hooks.Add(hook)
 	return logger

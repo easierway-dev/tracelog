@@ -6,7 +6,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/trace"
 )
+
 var Logger  *log.Logger
+
 type LogrusLogEvent struct {
 	span       trace.Span
 	traceID    trace.TraceID
@@ -18,11 +20,16 @@ type LogrusLogEvent struct {
 	eventName string
 	logger 	   *log.Logger
 }
+
 type LogrusLogEventVec struct {
 	logrusLogEvent *LogrusLogEvent
 }
 
 func NewLogrusLogEventVec(ctx context.Context,name string) logEventVec {
+    // global logger init failed
+    if Logger == nil {
+        return NewNopLogEventVec()
+    }
 	span, spanFlag := logSpanFromContext(ctx)
 	if span == nil || spanFlag == logSpanNoSampled {
 		return NewNopLogEventVec()
