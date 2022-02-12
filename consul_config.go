@@ -127,7 +127,8 @@ func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
 	case log_event.Stdout:
 		stdout := log_event.AddStdout()
 		return stdout
+    // 不配置log exporter时, 不打印日志
 	default:
-		return log.New()
+		return nil
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-var Logger  *log.Logger
+var Logger *log.Logger
 
 type LogrusLogEvent struct {
 	span       trace.Span
@@ -18,7 +18,6 @@ type LogrusLogEvent struct {
 	resource   map[string]string
 	kafkaTopic 	   []string
 	eventName string
-	logger 	   *log.Logger
 }
 
 type LogrusLogEventVec struct {
@@ -73,7 +72,7 @@ func (le *LogrusLogEvent) Log(msg string) {
 	if le.spanFlag == logSpanNewSpan {
 		defer le.span.End()
 	}
-	le.logger.WithFields(log.Fields{
+	Logger.WithFields(log.Fields{
 		"traceId": le.traceID.String(),
 		"spanId": le.spanID.String(),
 		"traceFlags":int(le.spanFlag),

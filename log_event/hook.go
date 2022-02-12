@@ -20,8 +20,6 @@ func GetIndexNameFunc(key string) elogrus.IndexNameFunc {
 	}
 }
 func AddES(Url string) *logrus.Logger{
-	logger := logrus.New()
-    log.SetOutput(ioutil.Discard)
 	u, err := url.Parse(Url)
 	if err != nil{
 		fmt.Println("invalid url:",err.Error())
@@ -39,6 +37,8 @@ func AddES(Url string) *logrus.Logger{
 		fmt.Println("invalid hook log event:",err.Error())
         return nil
 	}
+	logger := logrus.New()
+    logger.SetOutput(ioutil.Discard)
 	logger.Hooks.Add(hook)
 	return logger
 }
