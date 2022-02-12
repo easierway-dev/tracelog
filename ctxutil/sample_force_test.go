@@ -2,9 +2,9 @@ package ctxutil_test
 
 import (
 	"context"
+	"github.com/google/go-cmp/cmp"
 	"gitlab.mobvista.com/mtech/tracelog/ctxutil"
 	"go.opentelemetry.io/otel/trace"
-    "github.com/google/go-cmp/cmp"
 
 	"testing"
 )
@@ -46,7 +46,7 @@ func TestNonSampledContextToSampledContext(t *testing.T) {
 		{
 			name:   "in valid context, non sampled -> non sampled",
 			sc:     trace.SpanContext{},
-            wantSc: trace.NewSpanContext(trace.SpanContextConfig{Remote: true}),
+			wantSc: trace.NewSpanContext(trace.SpanContextConfig{Remote: true}),
 		},
 		{
 			name: "valid context, non sampled -> sampled",
@@ -58,8 +58,7 @@ func TestNonSampledContextToSampledContext(t *testing.T) {
 				TraceID:    traceID,
 				SpanID:     spanID,
 				TraceFlags: trace.FlagsSampled,
-                Remote:     true,
-
+				Remote:     true,
 			}),
 		},
 	}
