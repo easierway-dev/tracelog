@@ -117,6 +117,10 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 	return config, nil
 }
 func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
+    // 不配置LoggingExporter时，不会panic
+    if loggingExporter == nil {
+        return nil
+    }
 	switch loggingExporter.ExporterType {
 	case log_event.ES:
 		logger := log_event.AddES(loggingExporter.ElasticSearchUrl)
