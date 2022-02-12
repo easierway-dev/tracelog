@@ -20,6 +20,7 @@ func GetIndexNameFunc(key string) elogrus.IndexNameFunc {
 }
 func AddES(Url string) *logrus.Logger{
 	logger := logrus.New()
+    log.SetOutput(ioutil.Discard)
 	u, err := url.Parse(Url)
 	if err != nil{
 		fmt.Println("invalid url:",err.Error())
@@ -55,6 +56,7 @@ func AddKafka(Url string) *logrus.Logger{
 
 	// Create a new logrus.Logger
 	logger := logrus.New()
+    log.SetOutput(ioutil.Discard)
 
 	// Add hook to logger
 	logger.Hooks.Add(hook)
