@@ -3,7 +3,7 @@ package otelrpcx
 import (
 	"context"
 	rpcxshare "github.com/smallnest/rpcx/share"
-	"gitlab.mobvista.com/mtech/tracelog"
+	"gitlab.mobvista.com/mtech/tracelog/ctxutil"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
     "github.com/smallnest/rpcx/client"
@@ -20,7 +20,7 @@ func CallWithTrace(ctx context.Context, xclient client.XClient, serviceMethod st
 
 	defer span.End()
 
-	if traceParent := tracelog.TraceParenetFromContext(ctxDrs); traceParent != "" {
+	if traceParent := ctxutil.TraceParenetFromContext(ctxDrs); traceParent != "" {
 		ctxDrs = context.WithValue(ctxDrs, rpcxshare.ReqMetaDataKey, map[string]string{"traceparent": traceParent})
 	}
 	return xclient.Call(ctxDrs, "WrapRank", args, reply)
