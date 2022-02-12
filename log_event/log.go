@@ -2,7 +2,7 @@ package log_event
 
 import (
     "context"
-    "gitlab.mobvista.com/mtech/tracelog"
+    "gitlab.mobvista.com/mtech/tracelog/ctxutil"
 )
 
 type logEventVec interface{
@@ -16,7 +16,7 @@ type logEvent interface{
 func WithContext(ctx context.Context, name string) logEventVec {
     // if context span sampled
     // return jaeger_log (hard code)
-    if tracelog.IsSampledFromContext(ctx) {
+    if ctxutil.IsSampledFromContext(ctx) {
     return NewLogrusLogEventVec(ctx, name)
     }
 
