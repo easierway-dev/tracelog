@@ -39,7 +39,6 @@ func NewLogrusLogEventVec(ctx context.Context,name string) logEventVec {
 		spanFlag: spanFlag,
 		traceID:  span.SpanContext().TraceID(),
 		spanID:   span.SpanContext().SpanID(),
-		logger: Logger,
 		eventName: name,
 		kafkaTopic: []string{"trace_log"},
 	}
