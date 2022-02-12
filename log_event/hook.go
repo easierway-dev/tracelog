@@ -57,7 +57,7 @@ func AddKafka(Url string) *logrus.Logger {
 
 	// Create a new logrus.Logger
 	logger := logrus.New()
-	log.SetOutput(ioutil.Discard)
+	logger.SetOutput(ioutil.Discard)
 
 	// Add hook to logger
 	logger.Hooks.Add(hook)
