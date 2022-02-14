@@ -108,6 +108,7 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 		fmt.Println("init traceconfig failed:", err.Error())
 		return nil, err
 	}
+	// 给log_event包下的全局变量Logger赋值
 	log_event.Logger = InitLogger(consulConfig.LoggingExporter)
 	// 初始化OpenTelemetry SDK
 	if err := Start(config); err != nil {
@@ -116,6 +117,7 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 	}
 	return config, nil
 }
+// 初始化日志配置,仅为ES,Kafka,Stdout中的一种
 func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
     // 不配置LoggingExporter时，不会panic
     if loggingExporter == nil {

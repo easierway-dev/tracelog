@@ -13,24 +13,26 @@ import (
 	"strings"
 	"time"
 )
-
+// 按自定义时间格式标准输出
 func GetIndexNameFunc(key string) elogrus.IndexNameFunc {
 	return func() string {
 		return key + "-" + time.Now().Format("20060102")
 	}
 }
+// 添加ES日志配置
 func AddES(Url string) *logrus.Logger {
 	u, err := url.Parse(Url)
 	if err != nil {
 		fmt.Println("invalid url:", err.Error())
 		return nil
 	}
-	// 设置了ES的健康检查味false
+	// 设置ES的健康检查为false
 	client, err := elastic.NewClient(elastic.SetHealthcheck(false), elastic.SetSniff(false), elastic.SetURL(Url))
 	if err != nil {
 		fmt.Println("invalid client log event:", err.Error())
 		return nil
 	}
+	// 获取ES的主机地址
 	host := strings.Split(u.Host, ":")
 	hook, err := elogrus.NewAsyncElasticHookWithFunc(client, host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
 	if err != nil {
@@ -38,10 +40,12 @@ func AddES(Url string) *logrus.Logger {
 		return nil
 	}
 	logger := logrus.New()
+	// 设置本地不打印
 	logger.SetOutput(ioutil.Discard)
 	logger.Hooks.Add(hook)
 	return logger
 }
+// 添加Kafka日志配置
 func AddKafka(Url string) *logrus.Logger {
 	// Create a new KafkaHook
 	hook, err := lkh.NewKafkaHook(
@@ -50,20 +54,19 @@ func AddKafka(Url string) *logrus.Logger {
 		&logrus.JSONFormatter{},
 		[]string{Url},
 	)
-
 	if err != nil {
 		fmt.Println("invalid hook log event:", err.Error())
 	}
-
 	// Create a new logrus.Logger
 	logger := logrus.New()
+	// 设置本地不打印
 	logger.SetOutput(ioutil.Discard)
-
 	// Add hook to logger
 	logger.Hooks.Add(hook)
 	//l := logger.WithField("topics", []string{"first_topic"})
 	return logger
 }
+// 添加Stdout日志配置
 func AddStdout() *logrus.Logger {
 	logger := logrus.New()
 	// 设置日志格式为json格式

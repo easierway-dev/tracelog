@@ -9,7 +9,7 @@ func TestNopLogger(t *testing.T) {
 	t.Parallel()
 	nopLogEventVec := NewNopLogEventVec()
 	jaegerLogEventVec := NewJaegerLogEventVec(context.Background(), "")
-	m := make(map[string]string)
+	m := make(map[string]interface{})
 	m["Label1"] = "tag1"
 	m["Label2"] = "tag2"
 	got, want := jaegerLogEventVec, nopLogEventVec
