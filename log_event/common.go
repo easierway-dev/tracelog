@@ -7,12 +7,12 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"reflect"
 )
-
+// 获取span中的AttributesAndResource
 func GetAttributesAndResource(span trace.Span) map[string]interface{}{
-	//var resource1 *resource.Resource
 	attributesAndResource := make(map[string]interface{})
 	getType := reflect.TypeOf(span)
 	getValue := reflect.ValueOf(span)
+	// 反射获取Attributes的属性值
 	if _, ok := getType.MethodByName("Attributes"); ok {
 		m := make(map[string]string)
 		handler := getValue.MethodByName("Attributes")
@@ -25,12 +25,13 @@ func GetAttributesAndResource(span trace.Span) map[string]interface{}{
 		}
 		attributesAndResource["Attributes"] = m
 	}
+	// 反射获取Resource的属性值
 	if _, ok := getType.MethodByName("Resource"); ok {
 		m := make(map[string]string)
 		handler := getValue.MethodByName("Resource")
 		val := handler.Call([]reflect.Value{})
-		intf := val[0].Interface()    // interface{} 类型
-		resource1 := intf.(*resource.Resource) // bool 类型
+		intf := val[0].Interface()
+		resource1 := intf.(*resource.Resource)
 		attributes := resource1.Attributes()
 		for i := 0; i < len(attributes); i++ {
 			if(attributes[i].Key) == semconv.ServiceNameKey{
