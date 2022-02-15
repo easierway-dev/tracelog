@@ -6,7 +6,7 @@ import (
 )
 
 type logEventVec interface {
-	WithLabelValues(map[string]interface{}) logEvent
+	WithLabelValues(map[string]string) logEvent
 }
 
 type logEvent interface {

@@ -39,6 +39,8 @@ func NewLogrusLogEventVec(ctx context.Context, name string) logEventVec {
 		spanFlag:   spanFlag,
 		traceID:    span.SpanContext().TraceID(),
 		spanID:     span.SpanContext().SpanID(),
+		attributes: GetAttributes(span),
+		resource: GetResource(span),
 		eventName:  name,
 		kafkaTopic: []string{"trace_log"},
 	}
@@ -46,16 +48,17 @@ func NewLogrusLogEventVec(ctx context.Context, name string) logEventVec {
 	return lleVec
 }
 
-func (lev *LogrusLogEventVec) getLogEventWithLabelValues(m map[string]interface{}) (*LogrusLogEvent, error) {
+func (lev *LogrusLogEventVec) getLogEventWithLabelValues(m map[string]string) (*LogrusLogEvent, error) {
 	if lev == nil || lev.logrusLogEvent == nil {
 		return nil, fmt.Errorf("invalid logrus log event")
 	}
-	lev.logrusLogEvent.attributes = m["Attributes"].(map[string]string)
-	lev.logrusLogEvent.resource = m["Resource"].(map[string]string)
+	for key,value := range m{
+		lev.logrusLogEvent.attributes[key] = value
+	}
 	return lev.logrusLogEvent, nil
 }
 
-func (lev *LogrusLogEventVec) WithLabelValues(m map[string]interface{}) logEvent {
+func (lev *LogrusLogEventVec) WithLabelValues(m map[string]string) logEvent {
 	le, err := lev.getLogEventWithLabelValues(m)
 	// when error, return nopLogEvent
 	if err != nil {

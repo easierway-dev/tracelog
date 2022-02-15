@@ -41,20 +41,20 @@ func NewJaegerLogEventVec(ctx context.Context, name string) logEventVec {
 	return jleVec
 }
 
-func (lev *JaegerLogEventVec) getLogEventWithLabelValues(m map[string]interface{}) (*JaegerLogEvent, error) {
+func (lev *JaegerLogEventVec) getLogEventWithLabelValues(m map[string]string) (*JaegerLogEvent, error) {
 	if lev == nil || lev.jaegerLogEvent == nil {
 		return nil, fmt.Errorf("invalid jaeger log event")
 	}
 	attrs := make([]attribute.KeyValue, len(m)+1)
 	for k, v := range m {
-		attrs = append(attrs, attribute.String(k, v.(string)))
+		attrs = append(attrs, attribute.String(k, v))
 	}
 	lev.jaegerLogEvent.attrs = attrs
 	return lev.jaegerLogEvent, nil
 
 }
 
-func (lev *JaegerLogEventVec) WithLabelValues(m map[string]interface{}) logEvent {
+func (lev *JaegerLogEventVec) WithLabelValues(m map[string]string) logEvent {
 	le, err := lev.getLogEventWithLabelValues(m)
 	// when error, return nopLogEvent
 	if err != nil {

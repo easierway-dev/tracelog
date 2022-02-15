@@ -11,5 +11,5 @@ func NewNopLogEventVec() logEventVec {
 	return nopLogEventVec{}
 }
 
-func (nopLogEventVec) WithLabelValues(map[string]interface{}) logEvent { return nopLogEvent{} }
+func (nopLogEventVec) WithLabelValues(map[string]string) logEvent { return nopLogEvent{} }
 func (nopLogEvent) Log(string)                                    { return }

@@ -74,13 +74,13 @@ func TestLogrusLoggerSample(t *testing.T) {
 		name string
 		ctx context.Context
 		sample logSpanFlag
-		m map[string]interface{}
+		m map[string]string
 	}{
 		{
 			name: "new valid context, parent sampled return 1",
 			ctx: trace.ContextWithSpan(context.Background(),span),
 			sample: logSpanUseParent,
-			m: map[string]interface{}{"Attributes":map[string]string{"peer.service":"ExampleService"},"Resource":map[string]string{"service.name":"LogEvent"}},
+			m: map[string]string{"peer.service":"ExampleService1"},
 		},
 		{
 			name: "new valid context,customize sampled return 2",
@@ -91,7 +91,7 @@ func TestLogrusLoggerSample(t *testing.T) {
 				Remote:     true,
 			})),
 			sample: logSpanNewSpan,
-			m: map[string]interface{}{"Attributes":map[string]string{"peer.service":"ExampleService"},"Resource":map[string]string{"service.name":"LogEvent"}},
+			m: map[string]string{"peer.service":"ExampleService2"},
 		},
 	}
 	for _, tt := range tests {
