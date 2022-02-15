@@ -18,6 +18,7 @@ type LogrusLogEvent struct {
 	resource   map[string]string
 	kafkaTopic []string
 	eventName  string
+	logger 	   *log.Logger
 }
 
 type LogrusLogEventVec struct {
@@ -42,6 +43,7 @@ func NewLogrusLogEventVec(ctx context.Context, name string) logEventVec {
 		attributes: GetAttributes(span),
 		resource: GetResource(span),
 		eventName:  name,
+		logger: Logger,
 		kafkaTopic: []string{"trace_log"},
 	}
 	lleVec := &LogrusLogEventVec{lle}
