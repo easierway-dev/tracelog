@@ -46,6 +46,7 @@ func NewLogrusLogEventVec(ctx context.Context, name string) logEventVec {
 		logger: Logger,
 		kafkaTopic: []string{"trace_log"},
 	}
+
 	lleVec := &LogrusLogEventVec{lle}
 	return lleVec
 }

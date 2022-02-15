@@ -41,9 +41,7 @@ func GetResource(span trace.Span) map[string]string{
 		resource1 := intf.(*resource.Resource)
 		attributes := resource1.Attributes()
 		for i := 0; i < len(attributes ); i++ {
-			if(attributes[i].Key) == semconv.ServiceNameKey{
-				m[string(attributes[i].Key)] = attributes[i].Value.AsString()
-			}
+			m[string(attributes[i].Key)] = attributes[i].Value.AsString()
 		}
 	}
 	return resources
