@@ -1,4 +1,4 @@
-package log_event
+package logevent
 
 import (
 	"context"

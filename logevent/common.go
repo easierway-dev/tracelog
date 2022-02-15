@@ -1,4 +1,4 @@
-package log_event
+package logevent
 
 import (
 	"go.opentelemetry.io/otel/attribute"
@@ -33,7 +33,7 @@ func GetAttributesAndResource(span trace.Span) map[string]interface{}{
 		intf := val[0].Interface()
 		resource1 := intf.(*resource.Resource)
 		attributes := resource1.Attributes()
-		for i := 0; i < len(attributes); i++ {
+		for i := 0; i < len(attributes ); i++ {
 			if(attributes[i].Key) == semconv.ServiceNameKey{
 				m[string(attributes[i].Key)] = attributes[i].Value.AsString()
 			}

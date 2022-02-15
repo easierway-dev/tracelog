@@ -1,4 +1,4 @@
-package log_event
+package logevent
 
 import (
 	"context"
@@ -77,8 +77,7 @@ func (le *LogrusLogEvent) Log(msg string) {
 		"spanId": le.spanID.String(),
 		"traceFlags":int(le.spanFlag),
 		"attributes": le.attributes,
-		"resource": le.resource,
-		"kafkaTopic":le.kafkaTopic,
+		"resources": le.resource,
 		"event": le.eventName,
 	}).Info(msg)
 }
