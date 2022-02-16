@@ -1,6 +1,7 @@
 package logevent
 
 import (
+	"fmt"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/trace"
@@ -11,6 +12,7 @@ import (
 func GetAttributes(span trace.Span) map[string]string{
 	attributes1 := make(map[string]string)
 	getType := reflect.TypeOf(span)
+	fmt.Println("类型具体信息:"+getType.String())
 	getValue := reflect.ValueOf(span)
 	// 反射获取Attributes的属性值
 	if _, ok := getType.MethodByName("Attributes"); ok {
@@ -30,6 +32,7 @@ func GetAttributes(span trace.Span) map[string]string{
 func GetResource(span trace.Span) map[string]string{
 	resources := make(map[string]string)
 	getType := reflect.TypeOf(span)
+	fmt.Println("类型具体信息:"+getType.String())
 	getValue := reflect.ValueOf(span)
 	// 反射获取Resource的属性值
 	if _, ok := getType.MethodByName("Resource"); ok {
