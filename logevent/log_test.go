@@ -45,6 +45,8 @@ func TestLogWithContext(t *testing.T) {
 				spanID: span.SpanContext().SpanID(),
 				traceID: span.SpanContext().TraceID(),
 				eventName: "testLog",
+				attributes: GetAttributes(span),
+				resource: GetResource(span),
 				kafkaTopic: []string{"trace_log"},
 			}},
 		},
