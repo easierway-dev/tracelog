@@ -40,8 +40,8 @@ func NewLogrusLogEventVec(ctx context.Context, name string) logEventVec {
 		spanFlag:   spanFlag,
 		traceID:    span.SpanContext().TraceID(),
 		spanID:     span.SpanContext().SpanID(),
-		attributes: GetAttributes(span),
-		resource: GetResource(span),
+		attributes: GetAttributes(span), // 反射获取span中的Attributes值
+		resource: GetResource(span),	// 反射获取span中的Resource值
 		eventName:  name,
 		logger: Logger,
 		kafkaTopic: []string{"trace_log"},
@@ -55,6 +55,7 @@ func (lev *LogrusLogEventVec) getLogEventWithLabelValues(m map[string]string) (*
 	if lev == nil || lev.logrusLogEvent == nil {
 		return nil, fmt.Errorf("invalid logrus log event")
 	}
+	// 在span的Attributes基础上,添加自定义属性值
 	for key,value := range m{
 		lev.logrusLogEvent.attributes[key] = value
 	}
