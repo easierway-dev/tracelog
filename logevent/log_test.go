@@ -27,17 +27,17 @@ func TestLogWithContext(t *testing.T) {
 		logEventVec logEventVec
 	}{
 		{
-			name: "new invalid context, return nil",
+			name: "new invalid context, return NopLogEventVec",
 			ctx: nil,
 			logEventVec: nopLogEventVec{},
 		},
 		{
-			name: "new invalid context, return nil",
+			name: "new invalid context, return NopLogEventVec",
 			ctx: context.Background(),
 			logEventVec: nopLogEventVec{},
 		},
 		{
-			name:        "new valid context, sampled return nil",
+			name:        "new valid context, return LogrusLogEventVec",
 			ctx:         ctx,
 			logEventVec: &LogrusLogEventVec{logrusLogEvent: &LogrusLogEvent{
 				span: span,
