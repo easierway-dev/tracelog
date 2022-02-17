@@ -40,8 +40,8 @@ func NewLogrusLogEventVec(ctx context.Context, name string) logEventVec {
 		spanFlag:   spanFlag,
 		traceID:    span.SpanContext().TraceID(),
 		spanID:     span.SpanContext().SpanID(),
-		attributes: GetAttributes(span), // 反射获取span中的Attributes值
-		resource: GetResource(span),	// 反射获取span中的Resource值
+		attributes: GetAttributes(span), // 获取span中的Attributes值
+		resource: GetResource(span),	// 获取span中的Resource值
 		eventName:  name,
 		logger: Logger,
 		kafkaTopic: []string{"trace_log"},
