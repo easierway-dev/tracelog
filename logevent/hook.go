@@ -42,7 +42,7 @@ func AddES(Url string) *logrus.Logger {
 	}
 	logger := logrus.New()
 	// 设置本地不打印
-	logger.SetOutput(ioutil.Discard)
+	//logger.SetOutput(ioutil.Discard)
 	logger.Hooks.Add(hook)
 	return logger
 }

@@ -1,8 +1,6 @@
 package logevent
 
 import (
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/trace"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 )
