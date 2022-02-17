@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"gitlab.mobvista.com/mtech/tracelog/log_event"
+	"gitlab.mobvista.com/mtech/tracelog/logevent"
 	"time"
 	"unsafe"
 )
@@ -108,7 +108,8 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 		fmt.Println("init traceconfig failed:", err.Error())
 		return nil, err
 	}
-	log_event.Logger = InitLogger(consulConfig.LoggingExporter)
+	// 给log_event包下的全局变量Logger赋值
+	logevent.Logger = InitLogger(consulConfig.LoggingExporter)
 	// 初始化OpenTelemetry SDK
 	if err := Start(config); err != nil {
 		fmt.Println("init tracelog start failed:", err.Error())
@@ -116,20 +117,21 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 	}
 	return config, nil
 }
+// 初始化日志配置,仅为ES,Kafka,Stdout中的一种
 func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
     // 不配置LoggingExporter时，不会panic
     if loggingExporter == nil {
         return nil
     }
 	switch loggingExporter.ExporterType {
-	case log_event.ES:
-		logger := log_event.AddES(loggingExporter.ElasticSearchUrl)
+	case logevent.ES:
+		logger := logevent.AddES(loggingExporter.ElasticSearchUrl)
 		return logger
-	case log_event.Kafka:
-		kafka := log_event.AddKafka(loggingExporter.KafkaUrl)
+	case logevent.Kafka:
+		kafka := logevent.AddKafka(loggingExporter.KafkaUrl)
 		return kafka
-	case log_event.Stdout:
-		stdout := log_event.AddStdout()
+	case logevent.Stdout:
+		stdout := logevent.AddStdout()
 		return stdout
     // 不配置log exporter时, 不打印日志
 	default:

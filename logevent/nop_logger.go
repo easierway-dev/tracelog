@@ -1,4 +1,4 @@
-package log_event
+package logevent
 
 // ref:
 // https://github.com/go-kit/log/blob/main/nop_logger.go

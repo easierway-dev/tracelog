@@ -1,4 +1,4 @@
-package log_event
+package logevent
 
 const (
 	ES     string = "ES"
