@@ -20,14 +20,21 @@ func GetIndexNameFunc(key string) elogrus.IndexNameFunc {
 	}
 }
 // 添加ES日志配置
-func AddES(Url string) *logrus.Logger {
+func AddES(Url,ESUserName,ESPassword string) *logrus.Logger {
 	u, err := url.Parse(Url)
 	if err != nil {
 		fmt.Println("invalid url:", err.Error())
 		return nil
 	}
+    esOpts := make([]elastic.ClientOptionFunc,0)
+    esOpts = append(esOpts, elastic.SetHealthcheck(false))
+    esOpts = append(esOpts, elastic.SetURL(Url))
+    esOpts = append(esOpts, elastic.SetSniff(false))
+    if ESUserName != "" && ESPassword != "" {
+        esOpts = append(esOpts, elastic.SetBasicAuth(ESUserName,ESPassword))
+    }
 	// 设置ES的健康检查为false
-	client, err := elastic.NewClient(elastic.SetHealthcheck(false), elastic.SetSniff(false), elastic.SetURL(Url))
+	client, err := elastic.NewClient(esOpts...)
 	if err != nil {
 		fmt.Println("invalid client log event:", err.Error())
 		return nil
@@ -35,7 +42,7 @@ func AddES(Url string) *logrus.Logger {
 	// 获取ES的主机地址
 	host := strings.Split(u.Host, ":")
 	// 异步方法，当es出问题，不会影响到主流程的业务
-	hook, err := elogrus.NewAsyncElasticHookWithFunc(client, host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
+	hook, err := elogrus.NewBulkProcessorElasticHookWithFunc(client, host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
 	if err != nil {
 		fmt.Println("invalid hook log event:", err.Error())
 		return nil
