@@ -5,6 +5,7 @@ import (
 	lkh "github.com/gfremex/logrus-kafka-hook"
 	"github.com/olivere/elastic/v7"
 	"github.com/sirupsen/logrus"
+    "context"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/sohlich/elogrus.v7"
 	"io/ioutil"
