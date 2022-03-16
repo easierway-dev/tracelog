@@ -30,7 +30,7 @@ func AddES(Url,ESUserName,ESPassword string) *logrus.Logger {
     esOpts = append(esOpts, elastic.SetHealthcheck(false))
     esOpts = append(esOpts, elastic.SetURL(Url))
     esOpts = append(esOpts, elastic.SetSniff(false))
-    if ESUserName != "" && ESPassword 1= "" {
+    if ESUserName != "" && ESPassword != "" {
         esOpts = append(esOpts, elastic.SetBasicAuth(ESUserName,ESPassword))
     }
 	// 设置ES的健康检查为false
