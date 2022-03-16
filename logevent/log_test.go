@@ -11,7 +11,7 @@ import (
 
 func TestLogWithContext(t *testing.T) {
 	t.Parallel()
-	tp:=sdktrace.NewTracerProvider(
+	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()))
 	otel.SetTracerProvider(tp)
 	defer func() {
@@ -22,31 +22,31 @@ func TestLogWithContext(t *testing.T) {
 	tr := otel.Tracer("testlogrus")
 	ctx, span := tr.Start(context.Background(), "test")
 	tests := []struct {
-		name string
-		ctx context.Context
+		name        string
+		ctx         context.Context
 		logEventVec logEventVec
 	}{
 		{
-			name: "new invalid context, return NopLogEventVec",
-			ctx: nil,
+			name:        "new invalid context, return NopLogEventVec",
+			ctx:         nil,
 			logEventVec: nopLogEventVec{},
 		},
 		{
-			name: "new invalid context, return NopLogEventVec",
-			ctx: context.Background(),
+			name:        "new invalid context, return NopLogEventVec",
+			ctx:         context.Background(),
 			logEventVec: nopLogEventVec{},
 		},
 		{
-			name:        "new valid context, return LogrusLogEventVec",
-			ctx:         ctx,
+			name: "new valid context, return LogrusLogEventVec",
+			ctx:  ctx,
 			logEventVec: &LogrusLogEventVec{logrusLogEvent: &LogrusLogEvent{
-				span: span,
-				spanFlag: logSpanFlag(span.SpanContext().TraceFlags()),
-				spanID: span.SpanContext().SpanID(),
-				traceID: span.SpanContext().TraceID(),
-				eventName: "testLog",
+				span:       span,
+				spanFlag:   logSpanFlag(span.SpanContext().TraceFlags()),
+				spanID:     span.SpanContext().SpanID(),
+				traceID:    span.SpanContext().TraceID(),
+				eventName:  "testLog",
 				attributes: GetAttributes(span),
-				resource: GetResource(span),
+				resource:   GetResource(span),
 				kafkaTopic: []string{"trace_log"},
 			}},
 		},
@@ -55,7 +55,7 @@ func TestLogWithContext(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			withContext := WithContext(tt.ctx, "testLog")
 			if !reflect.DeepEqual(withContext, tt.logEventVec) {
-				t.Errorf("Extract Tracecontext: %s: NewLogrusLogEventVec() returned %#v",tt.name,tt.logEventVec)
+				t.Errorf("Extract Tracecontext: %s: NewLogrusLogEventVec() returned %#v", tt.name, tt.logEventVec)
 			}
 		})
 	}

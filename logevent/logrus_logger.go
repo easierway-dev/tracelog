@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/trace"
 )
+
 // 全局变量log
 var Logger *log.Logger
 
@@ -18,7 +19,7 @@ type LogrusLogEvent struct {
 	resource   map[string]string
 	kafkaTopic []string
 	eventName  string
-	logger 	   *log.Logger
+	logger     *log.Logger
 }
 
 type LogrusLogEventVec struct {
@@ -41,9 +42,9 @@ func NewLogrusLogEventVec(ctx context.Context, name string) logEventVec {
 		traceID:    span.SpanContext().TraceID(),
 		spanID:     span.SpanContext().SpanID(),
 		attributes: GetAttributes(span), // 获取span中的Attributes值
-		resource: GetResource(span),	// 获取span中的Resource值
+		resource:   GetResource(span),   // 获取span中的Resource值
 		eventName:  name,
-		logger: Logger,
+		logger:     Logger,
 		kafkaTopic: []string{"trace_log"},
 	}
 
@@ -56,7 +57,7 @@ func (lev *LogrusLogEventVec) getLogEventWithLabelValues(m map[string]string) (*
 		return nil, fmt.Errorf("invalid logrus log event")
 	}
 	// 在span的Attributes基础上,添加自定义属性值
-	for key,value := range m{
+	for key, value := range m {
 		lev.logrusLogEvent.attributes[key] = value
 	}
 	return lev.logrusLogEvent, nil
@@ -80,11 +81,11 @@ func (le *LogrusLogEvent) Log(msg string) {
 		defer le.span.End()
 	}
 	le.logger.WithFields(log.Fields{
-		"traceId": le.traceID.String(),
-		"spanId": le.spanID.String(),
-		"traceFlags":int(le.spanFlag),
+		"traceId":    le.traceID.String(),
+		"spanId":     le.spanID.String(),
+		"traceFlags": int(le.spanFlag),
 		"attributes": le.attributes,
-		"resources": le.resource,
-		"event": le.eventName,
+		"resources":  le.resource,
+		"event":      le.eventName,
 	}).Info(msg)
 }

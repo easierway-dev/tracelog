@@ -27,19 +27,19 @@ type Ops struct {
 type ConsulConfig struct {
 	// SampleRatio 取样比例, 用于初始TraceIDRatioSampler
 	// HasRemoteParent为true时, 可以设置parentBasedSampler的root为TraceIDRatioSampler
-	SampleRatio         float64		`json:"SampleRatio" toml:"SampleRatio"`
-	JaegerAgentEndpoint string 		`json:"JaegerAgentEndpoint" toml:"JaegerAgentEndpoint"`
+	SampleRatio         float64 `json:"SampleRatio" toml:"SampleRatio"`
+	JaegerAgentEndpoint string  `json:"JaegerAgentEndpoint" toml:"JaegerAgentEndpoint"`
 	JaegerAgentHost     string
 	JaegerAgentPort     string
-	RootService         []string	`json:"RootService" toml:"RootService"`
-	LoggingExporter *LoggingExporter `json:"LoggingExporter" toml:"LoggingExporter"`
+	RootService         []string         `json:"RootService" toml:"RootService"`
+	LoggingExporter     *LoggingExporter `json:"LoggingExporter" toml:"LoggingExporter"`
 }
 type LoggingExporter struct {
-	ExporterType string 	`json:"ExporterType" toml:"ExporterType"`
+	ExporterType     string `json:"ExporterType" toml:"ExporterType"`
 	ElasticSearchUrl string `json:"ElasticSearchUrl" toml:"ElasticSearchUrl"`
-	KafkaUrl	string		`json:"KafkaUrl" toml:"KafkaUrl"`
-	ESUserName	string		`json:"ESUserName" toml:"ESUserName"`
-	ESPassword	string		`json:"ESPassword" toml:"ESPassword"`
+	KafkaUrl         string `json:"KafkaUrl" toml:"KafkaUrl"`
+	ESUserName       string `json:"ESUserName" toml:"ESUserName"`
+	ESPassword       string `json:"ESPassword" toml:"ESPassword"`
 }
 
 func getTomlConfig(ops *Ops, value interface{}) error {
@@ -119,15 +119,16 @@ func FromConsulConfig(service_name string, consul_addr string, consul_key string
 	}
 	return config, nil
 }
+
 // 初始化日志配置,仅为ES,Kafka,Stdout中的一种
-func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
-    // 不配置LoggingExporter时，不会panic
-    if loggingExporter == nil {
-        return nil
-    }
+func InitLogger(loggingExporter *LoggingExporter) *log.Logger {
+	// 不配置LoggingExporter时，不会panic
+	if loggingExporter == nil {
+		return nil
+	}
 	switch loggingExporter.ExporterType {
 	case logevent.ES:
-		logger := logevent.AddES(loggingExporter.ElasticSearchUrl,loggingExporter.ESUserName,loggingExporter.ESPassword)
+		logger := logevent.AddES(loggingExporter.ElasticSearchUrl, loggingExporter.ESUserName, loggingExporter.ESPassword)
 		return logger
 	case logevent.Kafka:
 		kafka := logevent.AddKafka(loggingExporter.KafkaUrl)
@@ -135,7 +136,7 @@ func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
 	case logevent.Stdout:
 		stdout := logevent.AddStdout()
 		return stdout
-    // 不配置log exporter时, 不打印日志
+		// 不配置log exporter时, 不打印日志
 	default:
 		return nil
 	}
