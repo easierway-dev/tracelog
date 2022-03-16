@@ -26,7 +26,7 @@ func AddES(Url,ESUserName,ESPassword string) *logrus.Logger {
 		fmt.Println("invalid url:", err.Error())
 		return nil
 	}
-    esOpts := make([]elastic.ClientOptionFunc)
+    esOpts := make([]elastic.ClientOptionFunc,0)
     esOpts = append(esOpts, elastic.SetHealthcheck(false))
     esOpts = append(esOpts, elastic.SetURL(Url))
     esOpts = append(esOpts, elastic.SetSniff(false))
