@@ -38,6 +38,8 @@ type LoggingExporter struct {
 	ExporterType string 	`json:"ExporterType" toml:"ExporterType"`
 	ElasticSearchUrl string `json:"ElasticSearchUrl" toml:"ElasticSearchUrl"`
 	KafkaUrl	string		`json:"KafkaUrl" toml:"KafkaUrl"`
+	ESUserName	string		`json:"ESUserName" toml:"ESUserName"`
+	ESPassword	string		`json:"ESPassword" toml:"ESPassword"`
 }
 
 func getTomlConfig(ops *Ops, value interface{}) error {
@@ -125,7 +127,7 @@ func InitLogger(loggingExporter *LoggingExporter) *log.Logger{
     }
 	switch loggingExporter.ExporterType {
 	case logevent.ES:
-		logger := logevent.AddES(loggingExporter.ElasticSearchUrl)
+		logger := logevent.AddES(loggingExporter.ElasticSearchUrl,loggingExporter.ESUserName,loggingExporter.ESPassword)
 		return logger
 	case logevent.Kafka:
 		kafka := logevent.AddKafka(loggingExporter.KafkaUrl)

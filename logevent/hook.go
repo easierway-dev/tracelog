@@ -20,14 +20,14 @@ func GetIndexNameFunc(key string) elogrus.IndexNameFunc {
 	}
 }
 // 添加ES日志配置
-func AddES(Url string) *logrus.Logger {
+func AddES(Url,ESUserName,ESPassword string) *logrus.Logger {
 	u, err := url.Parse(Url)
 	if err != nil {
 		fmt.Println("invalid url:", err.Error())
 		return nil
 	}
 	// 设置ES的健康检查为false
-	client, err := elastic.NewClient(elastic.SetHealthcheck(false), elastic.SetSniff(false), elastic.SetURL(Url))
+	client, err := elastic.NewClient(elastic.SetBasicAuth(ESUserName,ESPassword),setelastic.SetHealthcheck(false), elastic.SetSniff(false), elastic.SetURL(Url))
 	if err != nil {
 		fmt.Println("invalid client log event:", err.Error())
 		return nil
