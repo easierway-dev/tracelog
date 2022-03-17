@@ -12,4 +12,4 @@ func NewNopLogEventVec() logEventVec {
 }
 
 func (nopLogEventVec) WithLabelValues(map[string]string) logEvent { return nopLogEvent{} }
-func (nopLogEvent) Log(string)                                    { return }
+func (nopLogEvent) Log(interface{})                                    { return }

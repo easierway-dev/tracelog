@@ -64,7 +64,7 @@ func (lev *JaegerLogEventVec) WithLabelValues(m map[string]string) logEvent {
 	return le
 }
 
-func (le *JaegerLogEvent) Log(msg string) {
+func (le *JaegerLogEvent) Log(msg interface{}) {
 	if le.span == nil {
 		return
 	}
@@ -75,7 +75,7 @@ func (le *JaegerLogEvent) Log(msg string) {
 
 	// to do: LabelValues to attr
 	// msg to body
-	le.attrs = append(le.attrs, attribute.String("event.message", msg))
+	le.attrs = append(le.attrs, attribute.String("event.message", msg.(string)))
 
 	// use jaeger span event as logger writer
 	le.span.AddEvent(le.eventName, trace.WithAttributes(le.attrs...))
