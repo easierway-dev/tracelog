@@ -6,6 +6,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"reflect"
 )
 
 type logSpanFlag int // 0: not-sampled; 1: use parent-span; 2: new span
@@ -72,10 +73,15 @@ func (le *JaegerLogEvent) Log(msg interface{}) {
 	if le.spanFlag == logSpanNewSpan {
 		defer le.span.End()
 	}
-
 	// to do: LabelValues to attr
 	// msg to body
-	le.attrs = append(le.attrs, attribute.String("event.message", msg.(string)))
+	switch reflect.TypeOf(msg).Kind() {
+	case reflect.Int:
+		le.attrs = append(le.attrs, attribute.String("event.message", string(msg.(int))))
+	case reflect.String:
+		le.attrs = append(le.attrs, attribute.String("event.message", msg.(string)))
+	default:
+		le.attrs = append(le.attrs, attribute.String("event.message", "not string")
 
 	// use jaeger span event as logger writer
 	le.span.AddEvent(le.eventName, trace.WithAttributes(le.attrs...))

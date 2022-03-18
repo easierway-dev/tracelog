@@ -46,7 +46,7 @@ func AddES(Url, ESUserName, ESPassword string) *logrus.Logger {
 	client.IndexExists("trace_log").Do(context.Background())
 	host := strings.Split(u.Host, ":")
 	// 异步方法，当es出问题，不会影响到主流程的业务
-	hook, err := elogrus.NewBulkProcessorElasticHookWithFunc(client, host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
+	hook, err := elogrus.NewAsyncElasticHookWithFunc(client, host[0], log.DebugLevel, GetIndexNameFunc("trace_log"))
 	if err != nil {
 		fmt.Println("invalid hook log event:", err.Error())
 		return nil

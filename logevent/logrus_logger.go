@@ -87,6 +87,6 @@ func (le *LogrusLogEvent) Log(msg interface{}) {
 		"attributes": le.attributes,
 		"resources":  le.resource,
 		"event":      le.eventName,
-		"message":     msg,
+		"message":    msg,
 	}).Info()
 }
