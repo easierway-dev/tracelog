@@ -77,12 +77,13 @@ func (le *JaegerLogEvent) Log(msg interface{}) {
 	// msg to body
 	switch reflect.TypeOf(msg).Kind() {
 	case reflect.Int:
-		le.attrs = append(le.attrs, attribute.String("event.message", string(msg.(int))))
+		le.attrs = append(le.attrs, attribute.Int("event.message", msg.(int)))
+		break
 	case reflect.String:
 		le.attrs = append(le.attrs, attribute.String("event.message", msg.(string)))
-	default:
-		le.attrs = append(le.attrs, attribute.String("event.message", "not string")
-
+		break
+	default:break
+	}
 	// use jaeger span event as logger writer
 	le.span.AddEvent(le.eventName, trace.WithAttributes(le.attrs...))
 }
