@@ -10,7 +10,7 @@ type logEventVec interface {
 }
 
 type logEvent interface {
-	Log(string)
+	Log(interface{})
 }
 
 func WithContext(ctx context.Context, name string) logEventVec {

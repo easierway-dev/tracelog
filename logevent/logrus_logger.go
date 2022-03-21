@@ -72,7 +72,7 @@ func (lev *LogrusLogEventVec) WithLabelValues(m map[string]string) logEvent {
 	return le
 }
 
-func (le *LogrusLogEvent) Log(msg string) {
+func (le *LogrusLogEvent) Log(msg interface{}) {
 	if le.span == nil {
 		return
 	}
@@ -87,5 +87,6 @@ func (le *LogrusLogEvent) Log(msg string) {
 		"attributes": le.attributes,
 		"resources":  le.resource,
 		"event":      le.eventName,
-	}).Info(msg)
+		"message":    msg,
+	}).Info()
 }
