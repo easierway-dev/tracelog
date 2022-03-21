@@ -11,15 +11,16 @@ import (
 var Logger *log.Logger
 
 type LogrusLogEvent struct {
-	span       trace.Span
-	traceID    trace.TraceID
-	spanID     trace.SpanID
-	spanFlag   logSpanFlag
-	attributes map[string]string
-	resource   map[string]string
-	kafkaTopic []string
-	eventName  string
-	logger     *log.Logger
+	span        trace.Span
+	traceID     trace.TraceID
+	spanID      trace.SpanID
+	spanFlag    logSpanFlag
+	attributes  map[string]string // Span中的attributes
+	resource    map[string]string // Span中的resource
+	labelValues map[string]string // 自定义属性
+	kafkaTopic  []string
+	eventName   string
+	logger      *log.Logger
 }
 
 type LogrusLogEventVec struct {
@@ -58,7 +59,7 @@ func (lev *LogrusLogEventVec) getLogEventWithLabelValues(m map[string]string) (*
 	}
 	// 在span的Attributes基础上,添加自定义属性值
 	for key, value := range m {
-		lev.logrusLogEvent.attributes[key] = value
+		lev.logrusLogEvent.labelValues[key] = value
 	}
 	return lev.logrusLogEvent, nil
 }
@@ -81,12 +82,13 @@ func (le *LogrusLogEvent) Log(msg interface{}) {
 		defer le.span.End()
 	}
 	le.logger.WithFields(log.Fields{
-		"traceId":    le.traceID.String(),
-		"spanId":     le.spanID.String(),
-		"traceFlags": int(le.spanFlag),
-		"attributes": le.attributes,
-		"resources":  le.resource,
-		"event":      le.eventName,
-		"message":    msg,
+		"traceId":     le.traceID.String(),
+		"spanId":      le.spanID.String(),
+		"traceFlags":  int(le.spanFlag),
+		"attributes":  le.attributes,
+		"resources":   le.resource,
+		"labelValues": le.labelValues,
+		"event":       le.eventName,
+		"message":     msg,
 	}).Info()
 }
